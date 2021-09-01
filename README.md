@@ -1,5 +1,11 @@
 # HTRVX : HTR Validation with XSD
 
+HTRVX - pronunced Ashterux - allows for simple XSD control of your corpora. Use remote XSDs, local ones or simply the one package with the repository.
+
+Currently available XSDs:
+
+- ALTO-Segmonto: Segmonto ontology + Alto
+
 ## How to install
 
 Simply run `pip install htrvx`
