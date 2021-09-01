@@ -12,6 +12,8 @@ Simply run `pip install htrvx`
 
 ## Github Action code
 
+If you want to add this to your github repository, as a continuous integration workflow, add a file `htrux.yml` at in the path `.github/workflows` of your repository.
+
 ```yaml
 # This workflow will install Python dependencies, run tests and lint with a single version of Python
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
