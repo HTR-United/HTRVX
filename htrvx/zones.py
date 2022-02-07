@@ -1,6 +1,34 @@
-from typing import Dict, Optional, Union
+import re
+from typing import Dict, Optional, Union, Iterable, Tuple, List
 from dataclasses import dataclass
 import lxml.etree as ET
+
+SegmontoZones = frozenset(["CustomZone",
+                           "DamageZone",
+                           "DecorationZone",
+                           "DigitizationArtefactZone",
+                           "DropCapitalZone",
+                           "MainZone",
+                           "MarginTextZone",
+                           "MusicZone",
+                           "NumberingZone",
+                           "QuireMarksZone",
+                           "RunningTitleZone",
+                           "SealZone",
+                           "StampZone",
+                           "TableZone",
+                           "TitlePageZone"])
+
+SegmontoLines = frozenset(["CustomLine",
+                           "DefaultLine",
+                           "DropCapitalLine",
+                           "InterlinearLine",
+                           "MusicLine",
+                           "RubricLine"])
+
+
+ZoneRegex = re.compile(f"({'|'.join(SegmontoZones)})"+r"(:\w+)?(#\w+)?")
+LineRegex = re.compile(f"({'|'.join(SegmontoLines)})"+r"(:\w+)?(#\w+)?")
 
 
 @dataclass
@@ -14,14 +42,31 @@ class XmlParser:
     def parse(self):
         raise NotImplemented
 
-    def get_zones(self):
+    def get_zones(self) -> Iterable[Element]:
         raise NotImplemented
 
-    def get_textlines(self):
+    def get_textlines(self) -> Iterable[Element]:
         raise NotImplemented
+
+    def test(self) -> Tuple[List[Element], List[Element]]:
+        zones_error = []
+        line_error = []
+        for zone in self.get_zones():
+            if (zone.category and not ZoneRegex.match(zone.category)) or not zone.category:
+                zones_error.append(zone)
+        for line in self.get_textlines():
+            if (line.category is not None and not LineRegex.match(line.category)) or line.category is None:
+                line_error.append(line)
+        return zones_error, line_error
 
 
 class PageXML(XmlParser):
+    def __init__(self, file: Union[str, ET._Document]):
+        if isinstance(file, str):
+            self.xml = ET.parse(file)
+        else:
+            self.xml = file
+
     @staticmethod
     def _parse_custom(attribute_string):
         annotations = {}
