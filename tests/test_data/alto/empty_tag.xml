@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<alto xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns="http://www.loc.gov/standards/alto/ns-v4#"
+      xsi:schemaLocation="http://www.loc.gov/standards/alto/ns-v4# http://www.loc.gov/standards/alto/v4/alto-4-2.xsd">
+  <Description>
+    <MeasurementUnit>pixel</MeasurementUnit>
+    <sourceImageInformation>
+      <fileName>f33.jpeg</fileName>
+
+    </sourceImageInformation>
+  </Description>
+
+  <Tags>
+    <OtherTag ID="BT1705" LABEL="DropCapitalZone" DESCRIPTION="block type DropCapitalZone"/><OtherTag ID="BT1707" LABEL="MainZone" DESCRIPTION="block type MainZone"/><OtherTag ID="BT1708" LABEL="MarginTextZone" DESCRIPTION="block type MarginTextZone"/>
+    <OtherTag ID="LT571" LABEL="DefaultLine" DESCRIPTION="line type DefaultLine"/>
+  </Tags>
+
+  <Layout>
+    <Page WIDTH="1417"
+          HEIGHT="2006"
+          PHYSICAL_IMG_NR="0"
+          ID="eSc_dummypage_">
+      <PrintSpace HPOS="0"
+                  VPOS="0"
+                  WIDTH="1417"
+                  HEIGHT="2006">
+
+        <TextBlock HPOS="298"
+                   VPOS="291"
+                   WIDTH="853"
+                   HEIGHT="420"
+                   ID="eSc_textblock_5ab95659"
+                   TAGREFS="BT1708">
+          <Shape><Polygon POINTS="298 291 298 711 1151 711 1151 291"/></Shape>
+
+
+          <TextLine ID="eSc_line_34da1f94"
+
+                    BASELINE="385 550 389 550 407 551 441 549 547 549 900 543"
+                    HPOS="385"
+                    VPOS="543"
+                    WIDTH="515"
+                    HEIGHT="8">
+
+	    <String CONTENT="Text"
+                    HPOS="385"
+                    VPOS="543"
+                    WIDTH="515"
+                    HEIGHT="8"></String>
+          </TextLine>
+
+
+        </TextBlock>
+
+
+
+        <TextBlock ID="eSc_dummyblock_">
+
+
+          <TextLine ID="eSc_line_6bac9aec"
+                    TAGREFS="LT571"
+                    BASELINE="357 383 366 378 382 376 436 376 555 374 947 374"
+                    HPOS="357"
+                    VPOS="374"
+                    WIDTH="590"
+                    HEIGHT="9">
+
+	    <String CONTENT="Text"
+                    HPOS="357"
+                    VPOS="374"
+                    WIDTH="590"
+                    HEIGHT="9"></String>
+          </TextLine>
+
+
+        </TextBlock>
+
+      </PrintSpace>
+    </Page>
+  </Layout>
+</alto>

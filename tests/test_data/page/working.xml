@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"  standalone="yes"?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15 http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15/pagecontent.xsd">
+  <Metadata>
+	<Creator>escriptorium</Creator>
+	<Created>2022-02-07T16:35:12.150989+00:00</Created>
+        <LastChange>2022-02-07T16:35:12.151032+00:00</LastChange>
+
+  </Metadata>
+  <Page imageFilename="f33.jpeg" imageWidth="1417" imageHeight="2006">
+    <TextRegion id="zone1"  custom="structure {type:MarginTextZone;}">
+      <Coords points="298,291 298,711 1151,711 1151,291"/>
+      <TextLine id="eSc_line_34da1f94" custom="structure {type:DefaultLine;}">
+        <Coords points="385,550 389,550 407,551 441,549 547,549 900,543"/>
+        <TextEquiv>
+          <Unicode>Text</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+    <TextRegion id="zone2"  custom="structure {type:MarginTextZone;}">
+      <Coords points="298,291 298,711 1151,711 1151,291"/>
+      <TextLine id="eSc_line_6bac9aec" custom="structure {type:DefaultLine;}">
+        <Coords points="385,550 389,550 407,551 441,549 547,549 900,543"/>
+        <TextEquiv>
+          <Unicode>Text</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>
