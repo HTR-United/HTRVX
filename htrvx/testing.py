@@ -23,7 +23,8 @@ def _get_ids(ids):
 
 def _print_segmonto(file_name, verbose, zone_error, line_errors, group=False):
     if zone_error or line_errors:
-        click.echo(click.style(f"{Space1}× Segmonto test for {file_name}: Invalid ({len(zone_error)} wrongly tagged zones, "
+        click.echo(click.style(f"{Space1}× Segmonto test for {file_name}: Invalid ({len(zone_error)}"
+                               f" wrongly tagged zones, "
                                f"{len(line_errors)} wrongly tagged lines)", fg="red"), color=True)
         if verbose:
             if group:
@@ -62,6 +63,36 @@ def _print_segmonto(file_name, verbose, zone_error, line_errors, group=False):
         click.echo(click.style(f"{Space1}✓ Segmonto test for {file_name}: Valid", fg="green"), color=True)
 
 
+def _print_empty(file_name, verbose, empty, group=False):
+    if empty:
+        click.echo(click.style(f"{Space1}× Detection of empty lines or region in {file_name}: Empty elements founds"
+                               f" ({len(empty)}", fg="red"), color=True)
+        if verbose:
+            zone_error = [z.id for z in empty if z.tagname == "Region"]
+            line_errors = [z.id for z in empty if z.tagname == "Line"]
+            if group:
+                click.secho(
+                    f"{Space2}→ {len(zone_error)} empty zone(s) found: {_get_ids(zone_error)}",
+                    fg="yellow", color=True
+                )
+                click.secho(
+                    f"{Space2}→ {len(line_errors)} empty line(s) found: {_get_ids(line_errors)}",
+                    fg="yellow", color=True
+                )
+            else:
+                for zone in zone_error:
+                    click.secho(
+                        f"{Space2}→ Region with id #{zone.id} is empty", fg="yellow", color=True
+                    )
+                for line in line_errors:
+                    click.secho(
+                        f"{Space2}→ Line with id #{line.id} is empty", fg="yellow", color=True
+                    )
+    else:
+        click.echo(click.style(f"{Space1}✓ Detection of empty lines or region in {file_name}: Valid", fg="green"),
+                   color=True)
+
+
 def print_error_log(error_log: Iterable[etree._LogEntry], group: bool = False) -> None:
     errors = defaultdict(list)
     for line in error_log:
@@ -85,6 +116,7 @@ def print_error_log(error_log: Iterable[etree._LogEntry], group: bool = False) -
 def apply_tests(
         files: Iterable[str], verbose: bool = False, group: bool = True,
         format: str = "alto", segmonto: bool = True,
+        check_empty: bool = True, warn_only_for_empty: bool = True,
         xsd: bool = False):
     failed = False
     statuses: List[int] = []
@@ -100,18 +132,28 @@ def apply_tests(
 
         if segmonto:
             obj = cls(file_name)
-            zone_error, line_errors = obj.test()
+            zone_error, line_errors, empty = obj.test(check_empty=check_empty)
             _print_segmonto(file_name=file_name, verbose=verbose, zone_error=zone_error, line_errors=line_errors,
                             group=group)
             if zone_error or line_errors:
                 failed = True
                 file_correct = 0
+            if check_empty:
+                if not warn_only_for_empty and empty:
+                    failed = True
+                    file_correct = 0
 
+                _print_empty(
+                    file_name=file_name,
+                    verbose=verbose,
+                    empty=empty,
+                    group=group
+                )
         if xsd:
             failed = False
             validator = Validator(Schemas.get(format))
             if validator.validate(file_name):
-                click.echo(f"{Space1}✓ Schema for {file_name}: Valid")
+                click.secho(f"{Space1}✓ Schema for {file_name}: Valid", fg="green")
             else:
                 failed = True
                 click.echo(click.style(f"{Space1}× Schema for {file_name}: Invalid", fg="red"), color=True)

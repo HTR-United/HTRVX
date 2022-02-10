@@ -29,35 +29,20 @@
                    VPOS="291"
                    WIDTH="853"
                    HEIGHT="420"
+                   ID="empty_zone"
+                   TAGREFS="BT1708">
+          <Shape><Polygon POINTS="298 291 298 711 1151 711 1151 291"/></Shape>
+        </TextBlock>
+
+        <TextBlock HPOS="298"
+                   VPOS="291"
+                   WIDTH="853"
+                   HEIGHT="420"
                    ID="eSc_textblock_5ab95659"
                    TAGREFS="BT1708">
           <Shape><Polygon POINTS="298 291 298 711 1151 711 1151 291"/></Shape>
 
-
-          <TextLine ID="eSc_line_34da1f94"
-
-                    BASELINE="385 550 389 550 407 551 441 549 547 549 900 543"
-                    HPOS="385"
-                    VPOS="543"
-                    WIDTH="515"
-                    HEIGHT="8">
-
-	    <String CONTENT="Text"
-                    HPOS="385"
-                    VPOS="543"
-                    WIDTH="515"
-                    HEIGHT="8"></String>
-          </TextLine>
-
-
-        </TextBlock>
-
-
-
-        <TextBlock ID="eSc_dummyblock_">
-
-
-          <TextLine ID="eSc_line_6bac9aec"
+          <TextLine ID="eSc_line_1"
                     TAGREFS="LT571"
                     BASELINE="357 383 366 378 382 376 436 376 555 374 947 374"
                     HPOS="357"
@@ -65,7 +50,21 @@
                     WIDTH="590"
                     HEIGHT="9">
 
-	    <String CONTENT="Text"
+	    <String CONTENT="Some Content"
+                    HPOS="357"
+                    VPOS="374"
+                    WIDTH="590"
+                    HEIGHT="9"></String>
+          </TextLine>
+          <TextLine ID="eSc_line_2"
+                    TAGREFS="LT571"
+                    BASELINE="357 383 366 378 382 376 436 376 555 374 947 374"
+                    HPOS="357"
+                    VPOS="374"
+                    WIDTH="590"
+                    HEIGHT="9">
+
+	    <String CONTENT=""
                     HPOS="357"
                     VPOS="374"
                     WIDTH="590"

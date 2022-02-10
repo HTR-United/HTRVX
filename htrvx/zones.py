@@ -36,6 +36,7 @@ class Element:
     id: str
     tagname: str
     category: Optional[str] = None
+    has_content: bool = False
 
 
 class XmlParser:
@@ -48,16 +49,27 @@ class XmlParser:
     def get_textlines(self) -> Iterable[Element]:
         raise NotImplemented
 
-    def test(self) -> Tuple[List[Element], List[Element]]:
+    def test(self, check_empty: bool = False) -> Tuple[List[Element], List[Element], List[Element]]:
         zones_error = []
         line_error = []
-        for zone in self.get_zones():
+        empty = []
+        for zone in self.get_zones(check_empty=check_empty):
             if (zone.category and not ZoneRegex.match(zone.category)) or not zone.category:
                 zones_error.append(zone)
-        for line in self.get_textlines():
+            if not zone.has_content and check_empty:
+                empty.append(zone)
+        for line in self.get_textlines(check_empty=check_empty):
             if (line.category is not None and not LineRegex.match(line.category)) or line.category is None:
                 line_error.append(line)
-        return zones_error, line_error
+            if not line.has_content and check_empty:
+                empty.append(line)
+        return zones_error, line_error, empty
+
+    def _check_line_content(self, line: ET._Element) -> bool:
+        raise NotImplemented
+
+    def _check_zone_content(self, zone: ET._Element) -> bool:
+        raise NotImplemented
 
 
 class PageXML(XmlParser):
@@ -113,19 +125,30 @@ class AltoXML(XmlParser):
                     cls_map[tag.get('ID')] = tag.get('LABEL')
         return cls_map
 
-    def get_textlines(self):
+    def get_textlines(self, check_empty: bool = False):
         for line in self.xml.findall('.//{*}TextLine'):
             yield Element(
                 id=line.get("ID", "UnknownID"), tagname="Line",
-                category=self._parse_tagrefs(line.get('TAGREFS', ""))
+                category=self._parse_tagrefs(line.get('TAGREFS', "")),
+                has_content=False if not check_empty else self._check_line_content(line)
             )
 
-    def get_zones(self):
+    def get_zones(self, check_empty: bool = False):
         regions = []
         for x in AltoXML._Regions.keys():
             regions.extend(self.xml.findall('./{{*}}Layout/{{*}}Page/{{*}}PrintSpace/{{*}}{}'.format(x)))
         for region in regions:
             yield Element(
                 id=region.get("ID", "UnknownID"), tagname="Region",
-                category=self._parse_tagrefs(region.get('TAGREFS', ""))
+                category=self._parse_tagrefs(region.get('TAGREFS', "")),
+                has_content=False if not check_empty else self._check_zone_content(region)
             )
+
+    def _check_line_content(self, line: ET._Element) -> bool:
+        _line = line.find("{*}String")
+        if _line is not None:
+            return bool(_line.attrib["CONTENT"].strip())
+        return False
+
+    def _check_zone_content(self, zone: ET._Element) -> bool:
+        return zone.find(".//{*}TextLine") is not None
