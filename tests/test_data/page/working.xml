@@ -7,7 +7,7 @@
 
   </Metadata>
   <Page imageFilename="f33.jpeg" imageWidth="1417" imageHeight="2006">
-    <TextRegion id="zone1">
+    <TextRegion id="zone1"  custom="structure {type:MarginTextZone;}">
       <Coords points="298,291 298,711 1151,711 1151,291"/>
       <TextLine id="eSc_line_34da1f94" custom="structure {type:DefaultLine;}">
         <Coords points="385,550 389,550 407,551 441,549 547,549 900,543"/>
@@ -18,7 +18,7 @@
     </TextRegion>
     <TextRegion id="zone2"  custom="structure {type:MarginTextZone;}">
       <Coords points="298,291 298,711 1151,711 1151,291"/>
-      <TextLine id="eSc_line_6bac9aec">
+      <TextLine id="eSc_line_6bac9aec" custom="structure {type:DefaultLine;}">
         <Coords points="385,550 389,550 407,551 441,549 547,549 900,543"/>
         <TextEquiv>
           <Unicode>Text</Unicode>

@@ -4,7 +4,8 @@ from lxml import etree
 
 _here = os.path.dirname(__file__)
 Schemas = {
-    "alto": os.path.join(_here, "", "alto4.xsd")
+    "alto": os.path.join(_here, "", "alto4.xsd"),
+    "page": os.path.join(_here, "", "page2019.xsd")
 }
 
 

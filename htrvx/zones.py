@@ -93,7 +93,34 @@ class PageXML(XmlParser):
                     key, *val = val.split(':')
                     tag_vals[key] = ":".join(val)
                 annotations[tag.strip()] = tag_vals
-        return annotations
+        return annotations.get("structure", {}).get("type", None)
+
+    def get_zones(self, check_empty: bool = False):
+        for region in self.xml.findall(".//{*}TextRegion"):
+            yield Element(
+                id=region.attrib.get("id", "UnknownID"), tagname="Region",
+                category=self._parse_custom(region.attrib.get("custom", "")),
+                has_content=False if not check_empty else self._check_zone_content(region)
+            )
+
+    def _check_zone_content(self, zone: ET._Element) -> bool:
+        return zone.find(".//{*}TextLine") is not None
+
+    def get_textlines(self, check_empty: bool = False):
+        for line in self.xml.findall('.//{*}TextLine'):
+            yield Element(
+                id=line.get("ID", "UnknownID"), tagname="Line",
+                category=self._parse_custom(line.attrib.get("custom", "")),
+                has_content=False if not check_empty else self._check_line_content(line)
+            )
+
+    def _check_line_content(self, line: ET._Element) -> bool:
+        _line = line.find(".//{*}Unicode")
+        if _line is not None:
+            if _line.text is None:
+                return False
+            return bool(_line.text.strip())
+        return False
 
 
 class AltoXML(XmlParser):
