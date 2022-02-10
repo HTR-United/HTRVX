@@ -19,7 +19,7 @@ DESCRIPTION = 'HTRVX, HTR Validation with XSD'
 URL = 'https://github.com/htr-united/htrvx'
 AUTHOR = 'Thibault Clérice & Ariane Pinche'
 REQUIRES_PYTHON = '>=3.6.0'
-VERSION = "0.0.2"
+VERSION = "0.0.3"
 
 # What packages are required for this module to be executed?
 
@@ -107,7 +107,7 @@ setup(
 	package_data={'htrvx': ['schemas/*.xsd']},
 	include_package_data=True,
     entry_points={
-        'console_scripts': ['htrvx=htrvx:cmd'],
+        'console_scripts': ['htrvx=htrvx.cli:cmd'],
     },
     install_requires=REQUIRED,
     extras_require=EXTRAS,
