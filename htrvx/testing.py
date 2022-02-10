@@ -66,7 +66,7 @@ def _print_segmonto(file_name, verbose, zone_error, line_errors, group=False):
 def _print_empty(file_name, verbose, empty, group=False):
     if empty:
         click.echo(click.style(f"{Space1}× Detection of empty lines or region in {file_name}: Empty elements founds"
-                               f" ({len(empty)}", fg="red"), color=True)
+                               f" ({len(empty)})", fg="red"), color=True)
         if verbose:
             zone_error = [z.id for z in empty if z.tagname == "Region"]
             line_errors = [z.id for z in empty if z.tagname == "Line"]
@@ -82,11 +82,11 @@ def _print_empty(file_name, verbose, empty, group=False):
             else:
                 for zone in zone_error:
                     click.secho(
-                        f"{Space2}→ Region with id #{zone.id} is empty", fg="yellow", color=True
+                        f"{Space2}→ Region with id #{zone} is empty", fg="yellow", color=True
                     )
                 for line in line_errors:
                     click.secho(
-                        f"{Space2}→ Line with id #{line.id} is empty", fg="yellow", color=True
+                        f"{Space2}→ Line with id #{line} is empty", fg="yellow", color=True
                     )
     else:
         click.echo(click.style(f"{Space1}✓ Detection of empty lines or region in {file_name}: Valid", fg="green"),
@@ -116,7 +116,7 @@ def print_error_log(error_log: Iterable[etree._LogEntry], group: bool = False) -
 def apply_tests(
         files: Iterable[str], verbose: bool = False, group: bool = True,
         format: str = "alto", segmonto: bool = True,
-        check_empty: bool = True, warn_only_for_empty: bool = True,
+        check_empty: bool = True, raise_empty: bool = True,
         xsd: bool = False):
     failed = False
     statuses: List[int] = []
@@ -126,7 +126,7 @@ def apply_tests(
         cls = PageXML
 
     for file_name in files:
-        file_correct = 1
+        file_correct = 1  # File is correct
         if verbose:
             click.secho(f"⋯ Testing {file_name}")
 
@@ -138,8 +138,9 @@ def apply_tests(
             if zone_error or line_errors:
                 failed = True
                 file_correct = 0
+
             if check_empty:
-                if not warn_only_for_empty and empty:
+                if raise_empty and empty:
                     failed = True
                     file_correct = 0
 
@@ -164,7 +165,7 @@ def apply_tests(
         statuses.append(file_correct)
 
     click.echo("\n\n\n=====\nREPORT\n=====\n")
-    click.echo(f"{sum(statuses)}/{len(statuses)} invalid XML files")
+    click.echo(f"{sum(statuses)}/{len(statuses)} valid XML files")
 
     return failed
 
