@@ -19,7 +19,7 @@ DESCRIPTION = 'HTRVX, HTR Validation with XSD'
 URL = 'https://github.com/htr-united/htrvx'
 AUTHOR = 'Thibault Clérice & Ariane Pinche'
 REQUIRES_PYTHON = '>=3.6.0'
-VERSION = "0.0.3"
+VERSION = "0.0.4"
 
 # What packages are required for this module to be executed?
 
@@ -103,7 +103,7 @@ setup(
     python_requires=REQUIRES_PYTHON,
     url=URL,
     # If your package is a single module, use this instead of 'packages':
-    packages=['htrvx'],
+    packages=find_packages(exclude=["tests"]),
 	package_data={'htrvx': ['schemas/*.xsd']},
 	include_package_data=True,
     entry_points={
