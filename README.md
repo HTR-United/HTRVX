@@ -1,3 +1,5 @@
+<img src="./img/htrvx.png" width=300 align=right>
+
 # HTRVX : HTR Validation for eXtra-quality controlled documents
 
 HTRVX - pronounced Ashterux - allows for quality control of XML using XSD schema validation, Segmonto validation and other verifications. 
