@@ -130,14 +130,16 @@ def apply_tests(
         if verbose:
             click.secho(f"⋯ Testing {file_name}")
 
-        if segmonto:
+        if segmonto or check_empty:
             obj = cls(file_name)
             zone_error, line_errors, empty = obj.test(check_empty=check_empty)
-            _print_segmonto(file_name=file_name, verbose=verbose, zone_error=zone_error, line_errors=line_errors,
-                            group=group)
-            if zone_error or line_errors:
-                failed = True
-                file_correct = 0
+
+            if segmonto:
+                _print_segmonto(file_name=file_name, verbose=verbose, zone_error=zone_error, line_errors=line_errors,
+                                group=group)
+                if zone_error or line_errors:
+                    failed = True
+                    file_correct = 0
 
             if check_empty:
                 if raise_empty and empty:
