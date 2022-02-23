@@ -124,14 +124,15 @@ def apply_tests(
         cls = AltoXML
     elif format == "page":
         cls = PageXML
-
     for file_name in files:
+        parsed_xml = None
         file_correct = 1  # File is correct
         if verbose:
             click.secho(f"⋯ Testing {file_name}")
 
         if segmonto or check_empty:
             obj = cls(file_name)
+            parsed_xml = obj.xml
             zone_error, line_errors, empty = obj.test(check_empty=check_empty)
 
             if segmonto:
@@ -154,7 +155,7 @@ def apply_tests(
                 )
         if xsd:
             failed = False
-            validator = Validator(Schemas.get(format))
+            validator = Validator(Validator.retrieve_xsd(parsed_xml if parsed_xml is not None else file_name))
             if validator.validate(file_name):
                 click.secho(f"{Space1}✓ Schema for {file_name}: Valid", fg="green")
             else:

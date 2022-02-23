@@ -2,6 +2,8 @@
 
 # HTRVX : HTR Validation for eXtra-quality controlled documents
 
+[![Test library](https://github.com/HTR-United/HTRVX/actions/workflows/test.yml/badge.svg)](https://github.com/HTR-United/HTRVX/actions/workflows/test.yml)
+
 HTRVX - pronounced Ashterux - allows for quality control of XML using XSD schema validation, Segmonto validation and other verifications. 
 
 ## How to install

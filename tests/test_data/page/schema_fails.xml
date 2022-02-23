@@ -2,12 +2,12 @@
 <PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15 http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15/pagecontent.xsd">
-  <Metadata>
+  <MetadataW>
 	<Creator>escriptorium</Creator>
 	<Created>2022-02-07T16:35:12.150989+00:00</Created>
         <LastChange>2022-02-07T16:35:12.151032+00:00</LastChange>
 
-  </Metadata>
+  </MetadataW>
   <Page imageFilename="f33.jpeg" imageWidth="1417" imageHeight="2006">
     <TextRegion id="zone1"  custom="structure {type:MarginTextZone;}">
       <Coords points="298,291 298,711 1151,711 1151,291"/>

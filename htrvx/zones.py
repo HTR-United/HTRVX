@@ -83,7 +83,7 @@ class PageXML(XmlParser):
     def _parse_custom(attribute_string):
         annotations = {}
         attribute_string = attribute_string.strip()
-        annotations_chunks = [l_chunk for l_chunk in attribute_string.split('}') if l_chunk.strip()]
+        annotations_chunks = [l_chunk for l_chunk in attribute_string.split('}') if l_chunk.strip() and "{" in l_chunk]
         if annotations_chunks:
             for chunk in annotations_chunks:
                 tag, vals = chunk.split('{')
@@ -109,7 +109,7 @@ class PageXML(XmlParser):
     def get_textlines(self, check_empty: bool = False):
         for line in self.xml.findall('.//{*}TextLine'):
             yield Element(
-                id=line.get("ID", "UnknownID"), tagname="Line",
+                id=line.get("id", "UnknownID"), tagname="Line",
                 category=self._parse_custom(line.attrib.get("custom", "")),
                 has_content=False if not check_empty else self._check_line_content(line)
             )

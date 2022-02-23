@@ -2,12 +2,12 @@
 <alto xmlns="http://www.loc.gov/standards/alto/ns-v4#"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://www.loc.gov/standards/alto/ns-v4# http://www.loc.gov/standards/alto/v4/alto-4-2.xsd">
-   <Description>
+   <DescriptionW>
       <MeasurementUnit>pixel</MeasurementUnit>
       <sourceImageInformation>
          <fileName>f33.jpeg</fileName>
       </sourceImageInformation>
-   </Description>
+   </DescriptionW>
    <Tags>
       <OtherTag ID="BT1705" LABEL="DropCapitalZone" DESCRIPTION="block type DropCapitalZone" />
       <OtherTag ID="BT1707" LABEL="MainZone" DESCRIPTION="block type MainZone" />
