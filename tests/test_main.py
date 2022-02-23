@@ -87,6 +87,7 @@ class AltoTestCase(TestCase):
         self.assertIn("0/1 valid XML files", result.output, "Nothing is valid")
 
     def test_schema_fails(self):
+        """ Schema should fail """
         result = self.cmd("--verbose", "--xsd", "--group", self.getFile("schema_fails.xml"))
         self.assertEqual(result.exit_code, 1, "Test fails")
 
@@ -106,6 +107,13 @@ class AltoTestCase(TestCase):
                 "Error is found on line 5 with details"
             )
         self.assertIn("0/1 valid XML files", result.output, "Nothing is valid")
+
+    def test_schema_old(self):
+        """ Schema should automatically be downloaded """
+        result = self.cmd("--verbose", "--xsd", "--group", self.getFile("schema_old.xml"))
+        self.assertEqual(result.exit_code, 0, "Test passes")
+
+        self.assertIn("1/1 valid XML files", result.output, "Everything is valid")
 
 
 class PageTestCase(AltoTestCase):
