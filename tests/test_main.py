@@ -6,6 +6,7 @@ from htrvx.cli import cmd
 
 class AltoTestCase(TestCase):
     FOLDER = "alto"
+    SCHEMA_ERROR = "DescriptionW"
 
     def setUp(self) -> None:
         self._folder = os.path.join(
@@ -83,6 +84,27 @@ class AltoTestCase(TestCase):
                       "Missing type is shown and zone id is shown")
         self.assertIn("*Empty* tag for lines is forbidden (1 annotations): #incorrect_line", result.output,
                       "Missing Type is shown and zone id is shown")
+        self.assertIn("0/1 valid XML files", result.output, "Nothing is valid")
+
+    def test_schema_fails(self):
+        result = self.cmd("--verbose", "--xsd", "--group", self.getFile("schema_fails.xml"))
+        self.assertEqual(result.exit_code, 1, "Test fails")
+
+        if self.FOLDER == "alto":
+            self.assertIn(
+                "Element 'alto:DescriptionW': This element is not expected. Expected is one of"
+                " ( alto:Description, alto:Styles, alto:Tags, alto:Layout ). on line(s): 5",
+                result.output,
+                "Error is found on line 5 with details"
+            )
+        else:
+            self.assertIn(
+                "Element '{http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15}MetadataW': "
+                "This element is not expected. Expected is ( "
+                "{http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15}Metadata ). on line(s): 5",
+                result.output,
+                "Error is found on line 5 with details"
+            )
         self.assertIn("0/1 valid XML files", result.output, "Nothing is valid")
 
 
