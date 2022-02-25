@@ -154,7 +154,6 @@ def apply_tests(
                     group=group
                 )
         if xsd:
-            failed = False
             validator = Validator(Validator.retrieve_xsd(parsed_xml if parsed_xml is not None else file_name))
             if validator.validate(file_name):
                 click.secho(f"{Space1}✓ Schema for {file_name}: Valid", fg="green")

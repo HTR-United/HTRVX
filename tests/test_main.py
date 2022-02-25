@@ -115,6 +115,14 @@ class AltoTestCase(TestCase):
 
         self.assertIn("1/1 valid XML files", result.output, "Everything is valid")
 
+    def test_combined(self):
+        """ Schema should automatically be downloaded """
+        result = self.cmd("--verbose", "--xsd", "--segmonto", "--group",
+                          self.getFile("schema_old.xml"), self.getFile("working.xml"))
+        self.assertEqual(result.exit_code, 1, "Test fails")
+
+        self.assertIn("1/2 valid XML files", result.output, "Everything is valid")
+
 
 class PageTestCase(AltoTestCase):
     FOLDER = "page"
