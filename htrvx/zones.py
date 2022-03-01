@@ -22,13 +22,12 @@ SegmontoZones = frozenset(["CustomZone",
 SegmontoLines = frozenset(["CustomLine",
                            "DefaultLine",
                            "DropCapitalLine",
+                           "HeadingLine",
                            "InterlinearLine",
-                           "MusicLine",
-                           "RubricLine"])
+                           "MusicLine"])
 
-
-ZoneRegex = re.compile(f"({'|'.join(SegmontoZones)})"+r"(:\w+)?(#\w+)?")
-LineRegex = re.compile(f"({'|'.join(SegmontoLines)})"+r"(:\w+)?(#\w+)?")
+ZoneRegex = re.compile(f"({'|'.join(SegmontoZones)})" + r"(:\w+)?(#\w+)?")
+LineRegex = re.compile(f"({'|'.join(SegmontoLines)})" + r"(:\w+)?(#\w+)?")
 
 
 @dataclass
@@ -125,9 +124,9 @@ class PageXML(XmlParser):
 
 class AltoXML(XmlParser):
     _Regions = {'TextBlock': 'text',
-                     'IllustrationType': 'illustration',
-                     'GraphicalElementType': 'graphic',
-                     'ComposedBlock': 'composed'}
+                'IllustrationType': 'illustration',
+                'GraphicalElementType': 'graphic',
+                'ComposedBlock': 'composed'}
 
     def __init__(self, file: Union[str, ET._Document]):
         if isinstance(file, str):

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<alto xmlns="http://www.loc.gov/standards/alto/ns-v4#"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.loc.gov/standards/alto/ns-v4# http://www.loc.gov/standards/alto/v4/alto-4-2.xsd">
+   <Description>
+      <MeasurementUnit>pixel</MeasurementUnit>
+      <sourceImageInformation>
+         <fileName>f33.jpeg</fileName>
+      </sourceImageInformation>
+   </Description>
+   <Tags>
+      <OtherTag ID="BT1705" LABEL="DropCapitalZone" DESCRIPTION="block type DropCapitalZone" />
+      <OtherTag ID="BT1707" LABEL="MainZone" DESCRIPTION="block type MainZone" />
+      <OtherTag ID="BT1708" LABEL="WrongZoneType" DESCRIPTION="block type WrongZoneType" />
+      <OtherTag ID="LT571" LABEL="WrongLineType" DESCRIPTION="line type WrongLineType" />
+      <OtherTag ID="LT570" LABEL="DefaultLine" DESCRIPTION="line type DefaultLine" />
+   </Tags>
+   <Layout>
+      <Page WIDTH="1417" HEIGHT="2006" PHYSICAL_IMG_NR="0" ID="page">
+         <PrintSpace HPOS="0" VPOS="0" WIDTH="1417" HEIGHT="2006">
+            <TextBlock HPOS="298" VPOS="291" WIDTH="853" HEIGHT="420" ID="incorrect_zone" TAGREFS="BT1708">
+               <Shape>
+                  <Polygon POINTS="298 291 298 711 1151 711 1151 291" />
+               </Shape>
+               <TextLine ID="correct_line" TAGREFS="LT570" BASELINE="357 383 366 378 382 376 436 376 555 374 947 374" HPOS="357" VPOS="374" WIDTH="590" HEIGHT="9">
+                  <String CONTENT="Text" HPOS="357" VPOS="374" WIDTH="590" HEIGHT="9" />
+               </TextLine>
+            </TextBlock>
+            <TextBlock HPOS="298" VPOS="291" WIDTH="853" HEIGHT="420" ID="correct_zone" TAGREFS="BT1707">
+               <Shape>
+                  <Polygon POINTS="298 291 298 711 1151 711 1151 291" />
+               </Shape>
+               <TextLine ID="incorrect_line" TAGREFS="LT571" BASELINE="357 383 366 378 382 376 436 376 555 374 947 374" HPOS="357" VPOS="374" WIDTH="590" HEIGHT="9">
+                  <String CONTENT="Text" HPOS="357" VPOS="374" WIDTH="590" HEIGHT="9" />
+               </TextLine>
+            </TextBlock>
+         </PrintSpace>
+      </Page>
+   </Layout>
+</alto>
+
