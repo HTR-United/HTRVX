@@ -64,3 +64,7 @@ jobs:
         htrvx --verbose --group --format alto --segmonto --xsd --check-empty --raise-empty UNIX/Path/to/**/your/*.xml
 
 ```
+
+---
+
+Logo by [Alix Chagué](https://alix-tz.github.io).
