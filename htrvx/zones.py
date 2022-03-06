@@ -5,7 +5,7 @@ import lxml.etree as ET
 
 SegmontoZones = frozenset(["CustomZone",
                            "DamageZone",
-                           "DecorationZone",
+                           "GraphicZone",
                            "DigitizationArtefactZone",
                            "DropCapitalZone",
                            "MainZone",
