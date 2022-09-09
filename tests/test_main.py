@@ -67,30 +67,33 @@ class AltoTestCase(TestCase):
     def test_segmonto_wrong_tag(self):
         result = self.cmd("--verbose", "--segmonto", "--group", self.getFile("segmonto_wrong_tag.xml"))
         self.assertEqual(result.exit_code, 1, "Test fails")
-        self.assertIn("(1 wrongly tagged zones, 1 wrongly tagged lines)", result.output,
-                      "Correct amount is found")
-        self.assertIn("`WrongZoneType` tag for zones is forbidden (1 annotations): #incorrect_zone", result.output,
+        self.assertIn("1 wrongly tagged zones", result.output, "Correct amount of zones is found")
+        self.assertIn("1 wrongly tagged lines", result.output, "Correct amount of lines is found")
+        self.assertIn("`WrongZoneType` tag for zone(s) is forbidden (1 annotations): #incorrect_zone", result.output,
                       "Type is shown and zone id is shown")
-        self.assertIn("`WrongLineType` tag for lines is forbidden (1 annotations): #incorrect_line", result.output,
+        self.assertIn("`WrongLineType` tag for line(s) is forbidden (1 annotations): #incorrect_line", result.output,
                       "Type is shown and zone id is shown")
         self.assertIn("0/1 valid XML files", result.output, "Nothing is valid")
 
     def test_segmonto_no_tag(self):
         result = self.cmd("--verbose", "--segmonto", "--group", self.getFile("segmonto_empty_tag.xml"))
         self.assertEqual(result.exit_code, 1, "Test fails")
-        self.assertIn("(1 wrongly tagged zones, 1 wrongly tagged lines)", result.output,
-                      "Correct amount is found")
-        self.assertIn("*Empty* tag for zones is forbidden (1 annotations): #incorrect_zone", result.output,
-                      "Missing type is shown and zone id is shown")
-        self.assertIn("*Empty* tag for lines is forbidden (1 annotations): #incorrect_line", result.output,
-                      "Missing Type is shown and zone id is shown")
+        self.assertIn("1 wrongly tagged zones", result.output, "Correct amount of zones is found")
+        self.assertIn("1 wrongly tagged lines", result.output, "Correct amount of lines is found")
+        self.assertIn(
+            "Missing tag for zone(s) is forbidden (1 annotations): #incorrect_zone", result.output,
+            "Missing type is shown and zone id is shown"
+        )
+        self.assertIn(
+            "Missing tag for line(s) is forbidden (1 annotations): #incorrect_line", result.output,
+            "Missing Type is shown and zone id is shown"
+        )
         self.assertIn("0/1 valid XML files", result.output, "Nothing is valid")
 
     def test_schema_fails(self):
         """ Schema should fail """
         result = self.cmd("--verbose", "--xsd", "--group", self.getFile("schema_fails.xml"))
         self.assertEqual(result.exit_code, 1, "Test fails")
-
         if self.FOLDER == "alto":
             self.assertIn(
                 "Element 'alto:DescriptionW': This element is not expected. Expected is one of"

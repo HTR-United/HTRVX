@@ -48,18 +48,24 @@ class XmlParser:
     def get_textlines(self) -> Iterable[Element]:
         raise NotImplemented
 
-    def test(self, check_empty: bool = False) -> Tuple[List[Element], List[Element], List[Element]]:
+    def test(
+            self,
+            check_empty: bool = False,
+            test_segmonto: bool = False
+    ) -> Tuple[List[Element], List[Element], List[Element]]:
         zones_error = []
         line_error = []
         empty = []
         for zone in self.get_zones(check_empty=check_empty):
-            if (zone.category and not ZoneRegex.match(zone.category)) or not zone.category:
-                zones_error.append(zone)
+            if test_segmonto:
+                if (zone.category and not ZoneRegex.match(zone.category)) or not zone.category:
+                    zones_error.append(zone)
             if not zone.has_content and check_empty:
                 empty.append(zone)
         for line in self.get_textlines(check_empty=check_empty):
-            if (line.category is not None and not LineRegex.match(line.category)) or line.category is None:
-                line_error.append(line)
+            if test_segmonto:
+                if (line.category is not None and not LineRegex.match(line.category)) or line.category is None:
+                    line_error.append(line)
             if not line.has_content and check_empty:
                 empty.append(line)
         return zones_error, line_error, empty

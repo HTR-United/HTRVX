@@ -1,7 +1,7 @@
 import sys
 import click
 
-from htrvx.testing import apply_tests
+from htrvx.testing import test
 
 
 @click.command()
@@ -27,11 +27,11 @@ def cmd(files, verbose: bool = False, group: bool = True, format: str ="alto", s
     eg. `htrvx ./data/**/*.xml --group --schema --format alto`
 
     """
-    if apply_tests(files, verbose=verbose, group=group, format=format, segmonto=segmonto,
-                   xsd=xsd, raise_empty=raise_empty, check_empty=check_empty):
-        sys.exit(1)
-    else:
+    if test(files, verbose=verbose, group=group, format=format, segmonto=segmonto,
+            xsd=xsd, raise_empty=raise_empty, check_empty=check_empty)[1]:
         sys.exit(0)
+    else:
+        sys.exit(1)
 
 
 if __name__ == "__main__":
