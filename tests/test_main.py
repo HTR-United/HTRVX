@@ -4,6 +4,26 @@ from click.testing import CliRunner
 from htrvx.cli import cmd
 from htrvx.testing import test_single, test
 from lxml.etree import parse
+import re
+
+
+ansi_escape = re.compile(r'''
+            \x1B  # ESC
+            (?:   # 7-bit C1 Fe (except CSI)
+                [@-Z\\-_]
+            |     # or [ for CSI, followed by a control sequence
+                \[
+                [0-?]*  # Parameter bytes
+                [ -/]*  # Intermediate bytes
+                [@-~]   # Final byte
+            )
+        ''', re.VERBOSE)
+
+
+class _DerivedOutput:
+    def __init__(self, out):
+        self.exit_code = out.exit_code
+        self.output = ansi_escape.sub("", out.output)
 
 
 class AltoTestCase(TestCase):
@@ -20,7 +40,8 @@ class AltoTestCase(TestCase):
         self._format = type(self).FOLDER
 
     def cmd(self, *args):
-        return self._runner.invoke(cmd, ["--format", self._format, *args])
+        out = self._runner.invoke(cmd, ["--format", self._format, *args])
+        return _DerivedOutput(out)
 
     def getFile(self, filename: str):
         return os.path.join(self._folder, filename)
