@@ -62,7 +62,7 @@ class Status:
         )
         if self.errors:
             for error in self.errors:
-                click.echo(click.style(f"{Space2}┗ {error}", fg="blue"))
+                click.echo(click.style(f"{Space2}┗ {error}", fg="blue"), color=True)
 
 
 @dataclass
@@ -311,7 +311,10 @@ def test(
             passed, total = filelog.score
             status_string: str = "success" if passed == total else "failure"
             # Print the element overal status
-            click.echo(click.style(f"{_char(status_string)} [{passed}/{total}] {file_name}", fg=_color(status_string)))
+            click.echo(
+                click.style(f"{_char(status_string)} [{passed}/{total}] {file_name}", fg=_color(status_string)),
+                color=True
+            )
             # Print the details
             filelog.print()
 
