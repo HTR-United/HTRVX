@@ -2,6 +2,8 @@ import os.path
 from unittest import TestCase
 from click.testing import CliRunner
 from htrvx.cli import cmd
+from htrvx.testing import test_single
+from lxml.etree import parse
 
 
 class AltoTestCase(TestCase):
@@ -133,6 +135,20 @@ class AltoTestCase(TestCase):
         self.assertEqual(result.exit_code, 1, "Test fails")
 
         self.assertIn("1/2 valid XML files", result.output, "One file does not pass")
+
+    def test_io_working_single(self):
+        """ Schema should automatically be downloaded """
+        xml = parse(self.getFile("working.xml"))
+        log = test_single(xml, xsd=True, segmonto=True, group=True, check_empty=False)
+        self.assertEqual(log.status, True, "Test should pass on XML parsed files")
+        self.assertEqual(len(log), 3, "Three tests should have been done")
+
+    def test_io_failing_single(self):
+        """ Schema should automatically be downloaded """
+        xml = parse(self.getFile("empty_line.xml"))
+        log = test_single(xml, xsd=True, segmonto=True, group=True, check_empty=True, raise_empty=True)
+        self.assertEqual(log.status, False, "Test should pass on XML parsed files")
+        self.assertEqual(len(log), 5, "Three tests should have been done")
 
 
 class PageTestCase(AltoTestCase):
