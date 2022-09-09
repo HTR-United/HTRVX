@@ -2,7 +2,7 @@ import os.path
 from unittest import TestCase
 from click.testing import CliRunner
 from htrvx.cli import cmd
-from htrvx.testing import test_single
+from htrvx.testing import test_single, test
 from lxml.etree import parse
 
 
@@ -139,16 +139,84 @@ class AltoTestCase(TestCase):
     def test_io_working_single(self):
         """ Schema should automatically be downloaded """
         xml = parse(self.getFile("working.xml"))
-        log = test_single(xml, xsd=True, segmonto=True, group=True, check_empty=False)
-        self.assertEqual(log.status, True, "Test should pass on XML parsed files")
+        log = test_single(
+            xml, xsd=True, segmonto=True, group=True, check_empty=False,
+            format=self.FOLDER
+        )
+        self.assertEqual(log.status, True, "Test should pass on opened files")
+        self.assertEqual(len(log), 3, "Three tests should have been done")
+
+        file = open(self.getFile("working.xml"))
+        log = test_single(file, xsd=True, segmonto=True, group=True, check_empty=False,
+            format=self.FOLDER)
+        self.assertEqual(log.status, True, "Test should pass on opened files")
         self.assertEqual(len(log), 3, "Three tests should have been done")
 
     def test_io_failing_single(self):
         """ Schema should automatically be downloaded """
         xml = parse(self.getFile("empty_line.xml"))
-        log = test_single(xml, xsd=True, segmonto=True, group=True, check_empty=True, raise_empty=True)
+        log = test_single(xml, xsd=True, segmonto=True, group=True, check_empty=True, raise_empty=True,
+            format=self.FOLDER)
         self.assertEqual(log.status, False, "Test should pass on XML parsed files")
         self.assertEqual(len(log), 5, "Three tests should have been done")
+        file = open(self.getFile("empty_line.xml"))
+        log = test_single(file, xsd=True, segmonto=True, group=True, check_empty=True, raise_empty=True,
+            format=self.FOLDER)
+        self.assertEqual(log.status, False, "Test should pass on XML parsed files")
+        self.assertEqual(len(log), 5, "Three tests should have been done")
+
+    def test_io_working_multiple(self):
+        """ Test that multiple files are checked correctly """
+        xml = [
+            parse(self.getFile("working.xml")),
+            parse(self.getFile("working.xml"))
+        ]
+        log, status = test(
+            xml, segmonto=True, group=True, check_empty=False,
+            format=self.FOLDER
+        )
+        self.assertEqual(status, True, "Test should pass on opened files")
+        self.assertEqual(len(log["File 001"]), 2, "Two tests should have been done")
+
+        file = [open(self.getFile("working.xml")), open(self.getFile("working.xml"))]
+        log, status = test(
+            file, segmonto=True, group=True, check_empty=False,
+            format=self.FOLDER
+        )
+        self.assertEqual(status, True, "Test should pass on opened files")
+        self.assertEqual(len(log["File 001"]), 2, "Two tests should have been done")
+        self.assertEqual(len(log["File 002"]), 2, "Two tests should have been done")
+        for f in file:
+            f.close()
+
+    def test_io_failing_multiple(self):
+        """ Test that multiple files are checked correctly """
+        xml = [
+            parse(self.getFile("working.xml")),
+            parse(self.getFile("empty_line.xml"))
+        ]
+        log, status = test(
+            xml, segmonto=True, group=True, check_empty=True, raise_empty=True,
+            format=self.FOLDER
+        )
+        self.assertEqual(status, False, "Test should fail on opened files")
+        self.assertEqual(len(log["File 001"]), 4, "Four tests should have been done")
+        self.assertEqual(log["File 001"].status, True, "First file passes")
+        self.assertEqual(len(log["File 002"]), 4, "Four tests should have been done")
+        self.assertEqual(log["File 002"].status, False, "Second file fails")
+
+        file = [open(self.getFile("working.xml")), open(self.getFile("empty_line.xml"))]
+        log, status = test(
+            file, segmonto=True, group=True, check_empty=True, raise_empty=True,
+            format=self.FOLDER
+        )
+        self.assertEqual(status, False, "Test should fail on opened files")
+        self.assertEqual(len(log["File 001"]), 4, "Two tests should have been done")
+        self.assertEqual(log["File 001"].status, True, "First file passes")
+        self.assertEqual(len(log["File 002"]), 4, "Two tests should have been done")
+        self.assertEqual(log["File 002"].status, False, "Second file fails")
+        for f in file:
+            f.close()
 
 
 class PageTestCase(AltoTestCase):

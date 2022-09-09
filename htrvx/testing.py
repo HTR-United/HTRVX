@@ -89,10 +89,10 @@ class FileLog:
         return sum(statuses), len(self.tests)
 
     def __iter__(self) -> Iterable[Status]:
-        return iter(self.tests)
+        return iter(self.tests) if self.tests else []
 
     def __len__(self) -> int:
-        return len(self.tests)
+        return len(self.tests) if self.tests else 0
 
     def __bool__(self) -> bool:
         return self.status
@@ -280,7 +280,7 @@ def test(
 
     for idx, file in enumerate(files):
         if not isinstance(file, str):
-            file_name = "File %s" % str(idx).zfill(3)
+            file_name = "File %s" % str(idx+1).zfill(3)
         else:
             file_name = file
 
