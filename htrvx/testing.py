@@ -152,8 +152,8 @@ def parse_empty(empty, group=False) -> Tuple[List[str], List[str]]:
             [f"Line with id #{line} is empty" for line in line_errors]
         )
     return (
-        [f"{_get_ids(zone_errors)}"],
-        [f"{_get_ids(line_errors)}"]
+        [f"Zones with missing IDs: {_get_ids(zone_errors)}"] if zone_errors else [],
+        [f"Lines with missing IDs: {_get_ids(line_errors)}"] if line_errors else []
     )
 
 
@@ -236,7 +236,6 @@ def test_single(
                     success = "failure"
                 else:
                     success = "warning"
-
                 filelog.append(
                     Status(
                         success,
