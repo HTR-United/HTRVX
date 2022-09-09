@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Iterable, List, Literal, Dict, Optional, Tuple
+from typing import Iterable, List, Literal, Dict, Optional, Tuple, Union, IO
 
 import click
 from lxml import etree
@@ -8,6 +8,7 @@ from htrvx.schemas import Validator, simplify_log_line
 from htrvx.zones import AltoXML, PageXML, Element
 from dataclasses import dataclass
 
+# Spacing for printing
 Space1 = "  "
 Space2 = "    "
 
@@ -47,7 +48,7 @@ class Status:
     errors: Optional[List[str]] = None
     level: Optional[Literal["zone", "line"]] = None
 
-    def print(self):
+    def print(self) -> None:
         additional_info = ""
         if self.level:
             additional_info = f" at the \033[1m{self.level}\033[0m's level"
@@ -68,13 +69,13 @@ class Status:
 class FileLog:
     tests: Optional[List[Status]] = None
 
-    def append(self, value):
+    def append(self, value) -> None:
         if self.tests is None:
             self.tests = []
         self.tests.append(value)
 
     @property
-    def status(self):
+    def status(self) -> bool:
         passed, total = self.score
         return passed == total
 
@@ -87,16 +88,16 @@ class FileLog:
         ]
         return sum(statuses), len(self.tests)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterable[Status]:
         return iter(self.tests)
 
-    def __len__(self):
-        return self.tests
+    def __len__(self) -> int:
+        return len(self.tests)
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return self.status
 
-    def print(self):
+    def print(self) -> None:
         if self.tests:
             for element in self.tests:
                 element.print()
@@ -108,7 +109,7 @@ def _empty_or_wrong(category):
     return f"has a forbidden type (`{category}`)"
 
 
-def _get_ids(ids):
+def _get_ids(ids: Iterable[str]) -> str:
     return ", ".join([f"#{val}" for val in ids])
 
 
@@ -176,90 +177,118 @@ def parse_alto_logs(error_log: Iterable[etree._LogEntry], group: bool = False) -
     ]
 
 
+def test_single(
+    file: Union[str, IO, etree._ElementTree],
+    group: bool = True,
+    format: Literal["alto", "page"] = "alto",
+    segmonto: bool = True,
+    check_empty: bool = True,
+    raise_empty: bool = True,
+    xsd: bool = False
+) -> FileLog:
+    filelog = FileLog()
+
+    if format == "alto":
+        cls = AltoXML
+    elif format == "page":
+        cls = PageXML
+    else:
+        raise ValueError("Format for files should be either `alto` or `page`")
+
+    if not hasattr(file, "xpath"):  # Definitely not perfect, ToDo: FIX
+        parsed_xml = etree.parse(file)
+    else:
+        parsed_xml = file
+
+    # For some tests, we need to parse the file internally
+    if segmonto or check_empty:
+        obj = cls(parsed_xml)
+
+        zone_errors, line_errors, empty = obj.test(check_empty=check_empty, test_segmonto=segmonto)
+
+        if segmonto:
+            filelog.append(
+                Status(
+                    "success" if not zone_errors else "failure",
+                    task="segmonto",
+                    message=f"{len(zone_errors)} wrongly tagged zones" if zone_errors else "",
+                    errors=parse_segmonto_errors(zone_errors, group=group, element_type="zone"),
+                    level="zone"
+                )
+            )
+            filelog.append(
+                Status(
+                    "success" if not line_errors else "failure",
+                    task="segmonto",
+                    message=f"{len(line_errors)} wrongly tagged lines" if line_errors else "",
+                    errors=parse_segmonto_errors(line_errors, group=group, element_type="line"),
+                    level="line"
+                )
+            )
+
+        if check_empty:
+            empty = parse_empty(empty, group=group)
+
+            for results, element_type in zip(empty, ["zone", "line"]):
+                if not results:
+                    success = "success"
+                elif raise_empty and results:
+                    success = "failure"
+                else:
+                    success = "warning"
+
+                filelog.append(
+                    Status(
+                        success,
+                        task="empty-verification",
+                        message=f"{len(results)} empty {element_type}(s) found" if results else "",
+                        errors=results,
+                        level=element_type
+                    )
+                )
+    if xsd:
+        validator = Validator(Validator.retrieve_xsd(parsed_xml))
+        if validator.validate(parsed_xml):
+            filelog.append(Status("success", task="schema", message="validation passed"))
+        else:
+            filelog.append(
+                Status(
+                    "failure",
+                    task="schema",
+                    message="validation failed",
+                    errors=parse_alto_logs(validator.xmlschema.error_log, group=group)
+                )
+            )
+
+    return filelog
+
+
 def test(
-        files: Iterable[str],
-        verbose: bool = False,
-        group: bool = True,
-        format: str = "alto",
-        segmonto: bool = True,
-        check_empty: bool = True,
-        raise_empty: bool = True,
-        xsd: bool = False
+    files: Iterable[Union[str, IO, etree._ElementTree]],
+    verbose: bool = False,
+    group: bool = True,
+    format: str = "alto",
+    segmonto: bool = True,
+    check_empty: bool = True,
+    raise_empty: bool = True,
+    xsd: bool = False
 ) -> Tuple[Dict[str, FileLog], bool]:
     """ Tests all single files in files and returns their filelog as well as a global boolean status
 
     """
     statuses: Dict[str, FileLog] = defaultdict(FileLog)
 
-    if format == "alto":
-        cls = AltoXML
-    elif format == "page":
-        cls = PageXML
+    for idx, file in enumerate(files):
+        if not isinstance(file, str):
+            file_name = "File %s" % str(idx).zfill(3)
+        else:
+            file_name = file
 
-    for file_name in files:
-        parsed_xml = None
-
-        # For some tests, we need to parse the file internally
-        if segmonto or check_empty:
-            obj = cls(file_name)
-            parsed_xml = obj.xml
-
-            zone_errors, line_errors, empty = obj.test(check_empty=check_empty, test_segmonto=segmonto)
-
-            if segmonto:
-                statuses[file_name].append(
-                    Status(
-                        "success" if not zone_errors else "failure",
-                        task="segmonto",
-                        message=f"{len(zone_errors)} wrongly tagged zones" if zone_errors else "",
-                        errors=parse_segmonto_errors(zone_errors, group=group, element_type="zone"),
-                        level="zone"
-                    )
-                )
-                statuses[file_name].append(
-                    Status(
-                        "success" if not line_errors else "failure",
-                        task="segmonto",
-                        message=f"{len(line_errors)} wrongly tagged lines" if line_errors else "",
-                        errors=parse_segmonto_errors(line_errors, group=group, element_type="line"),
-                        level="line"
-                    )
-                )
-
-            if check_empty:
-                empty = parse_empty(empty, group=group)
-
-                for results, element_type in zip(empty, ["zone", "line"]):
-                    if not results:
-                        success = "success"
-                    elif raise_empty and results:
-                        success = "failure"
-                    else:
-                        success = "warning"
-
-                    statuses[file_name].append(
-                        Status(
-                            success,
-                            task="empty-verification",
-                            message=f"{len(results)} empty {element_type}(s) found" if results else "",
-                            errors=results,
-                            level=element_type
-                        )
-                    )
-        if xsd:
-            validator = Validator(Validator.retrieve_xsd(parsed_xml if parsed_xml is not None else file_name))
-            if validator.validate(file_name):
-                statuses[file_name].append(Status("success", task="schema", message="validation passed"))
-            else:
-                statuses[file_name].append(
-                    Status(
-                        "failure",
-                        task="schema",
-                        message="validation failed",
-                        errors=parse_alto_logs(validator.xmlschema.error_log, group=group)
-                    )
-                )
-
+        statuses[file_name] = test_single(
+            file,
+            group=group, format=format,
+            segmonto=segmonto, check_empty=check_empty, raise_empty=raise_empty, xsd=xsd
+        )
         if verbose:
             filelog = statuses[file_name]
             passed, total = filelog.score
