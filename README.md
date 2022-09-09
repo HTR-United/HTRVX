@@ -20,6 +20,7 @@ Each verification is an opt-in verification: you need to express the fact that y
 - `--xsd` will check if the data are compliant with XML Schemas
 - `--check-empty` will check if regions have no lines or if lines have no text
     - `--check-empty` can be refined with `--raise-empty` to throw an error if empty elements are found, otherwise it's simply reported.
+= `--check-image` checks for link in the XML. Link are checked relatively to the XML file, ie. if XML file ./data/element.xml points to file.jpeg, file ./data/file.jpeg is expected to exist.
 
 Other parameters mainly have to do with verbosity: `--verbose` displays details about errors, `--group` groups errors (instead of showing one line per error, groups by error types).
 
@@ -32,6 +33,7 @@ Other parameters mainly have to do with verbosity: `--verbose` displays details 
 | -r, --raise-empty        | False   | Warns but not fails if empty lines or empty zones are found |
 | -x, --xsd                | False   | Apply XSD Schema verification                               |
 | -g, --group              | False   | Group error types (reduce verbosity)                        |
+| -i, --check-image        | False   | Check if the image link in the XML points to the right path |
 
 ## Github Action code
 

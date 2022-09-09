@@ -120,6 +120,27 @@ class AltoTestCase(TestCase):
 
         self.assertIn("1/1 valid XML files", result.output, "Everything is valid")
 
+    def test_image_no_link(self):
+        """ Test should fail when no image is linked """
+        result = self.cmd("--verbose", "--check-image", "--group", self.getFile("image_no_link.xml"))
+
+        self.assertEqual(result.exit_code, 1, "Test fail")
+        self.assertIn("0/1 valid XML files", result.output, "Test should fail")
+        self.assertIn("Image link check's test failed: No image file were declared in the XML..",
+                      result.output,
+                      "Precise error should be shown for image link checking")
+
+    def test_image_wrong_link(self):
+        """ Test should fail when the linked image points nowhere"""
+        result = self.cmd("--verbose", "--check-image", "--group", self.getFile("image_wronglink.xml"))
+        self.assertEqual(result.exit_code, 1, "Test fail")
+        self.assertIn("0/1 valid XML files", result.output, "Test should fail")
+
+        self.assertIn("Image link check's test failed: Image file at path "
+                      f"`{self.getFile('FileNotFound.jpeg')}` not found..",
+                      result.output,
+                      "Precise error should be shown for image link checking")
+
     def test_segmonto_complex(self):
         """ Schema should automatically be downloaded """
         result = self.cmd("--verbose", "--segmonto", "--group",

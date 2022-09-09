@@ -1,5 +1,6 @@
+import os.path
 import re
-from typing import Dict, Optional, Union, Iterable, Tuple, List
+from typing import Dict, Optional, Union, Iterable, Tuple, List, IO
 from dataclasses import dataclass
 import lxml.etree as ET
 
@@ -76,9 +77,21 @@ class XmlParser:
     def _check_zone_content(self, zone: ET._Element) -> bool:
         raise NotImplemented
 
+    def check_image_link(self, filepath: Optional[str] = None) -> Tuple[str, bool]:
+        raise NotImplementedError
+
+    def _check_image_link(self, filepath: Optional[str], xpath_results: Iterable[str]) -> Tuple[str, bool]:
+        if not filepath:
+            raise FileNotFoundError("Can't check an image link without a filepath")
+        for filename in xpath_results:
+            filename = str(filename)
+            filename = os.path.join(os.path.dirname(filepath), filename)
+            return filename, os.path.exists(filename)
+        return "", False
+
 
 class PageXML(XmlParser):
-    def __init__(self, file: Union[str, ET._Document]):
+    def __init__(self, file: Union[str, ET._ElementTree, IO]):
         if isinstance(file, str):
             self.xml = ET.parse(file)
         else:
@@ -127,6 +140,9 @@ class PageXML(XmlParser):
             return bool(_line.text.strip())
         return False
 
+    def check_image_link(self, filepath: Optional[str] = None) -> Tuple[str, bool]:
+        return self._check_image_link(filepath, self.xml.xpath("//@imageFilename"))
+
 
 class AltoXML(XmlParser):
     _Regions = {'TextBlock': 'text',
@@ -134,7 +150,7 @@ class AltoXML(XmlParser):
                 'GraphicalElementType': 'graphic',
                 'ComposedBlock': 'composed'}
 
-    def __init__(self, file: Union[str, ET._Document]):
+    def __init__(self, file: Union[str, ET._ElementTree, IO]):
         if isinstance(file, str):
             self.xml = ET.parse(file)
         else:
@@ -184,3 +200,9 @@ class AltoXML(XmlParser):
 
     def _check_zone_content(self, zone: ET._Element) -> bool:
         return zone.find(".//{*}TextLine") is not None
+
+    def check_image_link(self, filepath: Optional[str] = None) -> Tuple[str, bool]:
+        return self._check_image_link(
+            filepath,
+            [el.text for el in self.xml.findall("//{*}fileName")]
+        )

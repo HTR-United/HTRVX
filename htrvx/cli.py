@@ -14,6 +14,8 @@ from htrvx.testing import test
               help="Apply Segmonto Zoning verification", show_default=True)
 @click.option("-e", "--check-empty", is_flag=True, default=False,
               help="Check for empty lines or empty zones", show_default=True)
+@click.option("-i", "--check-image", is_flag=True, default=False,
+              help="Check if image links in the XML points to real files", show_default=True)
 @click.option("-r", "--raise-empty", is_flag=True, default=False,
               help="Warns but not fails if empty lines or empty zones are found", show_default=True)
 @click.option("-x", "--xsd", is_flag=True, default=False,
@@ -21,14 +23,14 @@ from htrvx.testing import test
 @click.option("-g", "--group", default=False, is_flag=True, help="Group error types")
 def cmd(files, verbose: bool = False, group: bool = True, format: str ="alto", segmonto: bool = True,
         check_empty: bool = True, raise_empty: bool = True,
-        xsd: bool = False):
+        xsd: bool = False, check_image: bool = False):
     """ Apply the XSD on FILES. XSD can be a URI, a filepath or a schema provided with this tool (eg. "ALTO-Segmonto")
 
     eg. `htrvx ./data/**/*.xml --group --schema --format alto`
 
     """
     if test(files, verbose=verbose, group=group, format=format, segmonto=segmonto,
-            xsd=xsd, raise_empty=raise_empty, check_empty=check_empty)[1]:
+            xsd=xsd, raise_empty=raise_empty, check_empty=check_empty, check_image=check_image)[1]:
         sys.exit(0)
     else:
         sys.exit(1)

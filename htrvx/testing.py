@@ -43,7 +43,7 @@ def _msg(status):
 @dataclass
 class Status:
     status: Literal["success", "warning", "failure"]
-    task: Literal["segmonto", "schema", "empty-verification"]
+    task: Literal["segmonto", "schema", "empty-verification", "image-link-check"]
     message: Optional[str] = None
     errors: Optional[List[str]] = None
     level: Optional[Literal["zone", "line"]] = None
@@ -184,7 +184,8 @@ def test_single(
     segmonto: bool = True,
     check_empty: bool = True,
     raise_empty: bool = True,
-    xsd: bool = False
+    xsd: bool = False,
+    check_image: bool = False
 ) -> FileLog:
     filelog = FileLog()
 
@@ -201,8 +202,23 @@ def test_single(
         parsed_xml = file
 
     # For some tests, we need to parse the file internally
-    if segmonto or check_empty:
+    if segmonto or check_empty or check_image:
         obj = cls(parsed_xml)
+
+        if check_image:
+            filepath, status = obj.check_image_link(file if isinstance(file, str) else None)
+            message = ""
+            if not status:
+                if filepath:
+                    message = f"Image file at path `{filepath}` not found."
+                else:
+                    message = "No image file were declared in the XML."
+
+            filelog.append(Status(
+                "success" if status else "failure",
+                task="image-link-check",
+                message=message if message else None
+            ))
 
         zone_errors, line_errors, empty = obj.test(check_empty=check_empty, test_segmonto=segmonto)
 
@@ -269,7 +285,8 @@ def test(
     format: str = "alto",
     segmonto: bool = True,
     check_empty: bool = True,
-    raise_empty: bool = True,
+    raise_empty: bool = False,
+    check_image: bool = False,
     xsd: bool = False
 ) -> Tuple[Dict[str, FileLog], bool]:
     """ Tests all single files in files and returns their filelog as well as a global boolean status
@@ -286,7 +303,8 @@ def test(
         statuses[file_name] = test_single(
             file,
             group=group, format=format,
-            segmonto=segmonto, check_empty=check_empty, raise_empty=raise_empty, xsd=xsd
+            segmonto=segmonto, check_empty=check_empty, raise_empty=raise_empty, xsd=xsd,
+            check_image=check_image
         )
         if verbose:
             filelog = statuses[file_name]
