@@ -26,7 +26,7 @@ Other parameters mainly have to do with verbosity: `--verbose` displays details 
 | Parameters               | Default | Function                                                    |
 |--------------------------|---------|-------------------------------------------------------------|
 | -v, --verbose            | False   | Prints more information                                     |
-| -f, --format [alto,page] | ALTO    | Format of files                                             |
+| -f, --format [alto,page] | alto    | Format of files                                             |
 | -s, --segmonto           | False   | Apply Segmonto Zoning verification                          |
 | -e, --check-empty        | False   | Check for empty lines or empty zones                        |
 | -r, --raise-empty        | False   | Warns but not fails if empty lines or empty zones are found |
