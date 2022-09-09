@@ -58,7 +58,8 @@ class Status:
                 f"{Space1}{_char(self.status)} \033[1m{' '.join(self.task.capitalize().split('-'))}\033[0m's "
                 f"test{additional_info} {_msg(status=self.status)}{': '+self.message if self.message else ''}.",
                 fg=_color(self.status)
-            )
+            ),
+            color=True
         )
         if self.errors:
             for error in self.errors:
