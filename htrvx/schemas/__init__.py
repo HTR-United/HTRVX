@@ -19,7 +19,7 @@ class Validator:
     @staticmethod
     def retrieve_xsd(file: Union[str, etree._ElementTree]) -> Optional[str]:
         ns = '{http://www.w3.org/2001/XMLSchema-instance}'
-        if isinstance(file, str):
+        if not isinstance(file, etree._ElementTree):
             document = etree.parse(file)
         else:
             document = file
@@ -46,8 +46,11 @@ class Validator:
             return Schemas[xsd_path]
         return xsd_path
 
-    def validate(self, xml_path: str) -> bool:
-        xml_doc = etree.parse(xml_path)
+    def validate(self, xml_path: Union[str, etree._ElementTree]) -> bool:
+        if not isinstance(xml_path, etree._ElementTree):
+            xml_doc = etree.parse(xml_path)
+        else:
+            xml_doc = xml_path
         result = self.xmlschema.validate(xml_doc)
 
         return result

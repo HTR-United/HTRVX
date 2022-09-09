@@ -1,5 +1,6 @@
+import os.path
 import re
-from typing import Dict, Optional, Union, Iterable, Tuple, List
+from typing import Dict, Optional, Union, Iterable, Tuple, List, IO
 from dataclasses import dataclass
 import lxml.etree as ET
 
@@ -48,18 +49,24 @@ class XmlParser:
     def get_textlines(self) -> Iterable[Element]:
         raise NotImplemented
 
-    def test(self, check_empty: bool = False) -> Tuple[List[Element], List[Element], List[Element]]:
+    def test(
+            self,
+            check_empty: bool = False,
+            test_segmonto: bool = False
+    ) -> Tuple[List[Element], List[Element], List[Element]]:
         zones_error = []
         line_error = []
         empty = []
         for zone in self.get_zones(check_empty=check_empty):
-            if (zone.category and not ZoneRegex.match(zone.category)) or not zone.category:
-                zones_error.append(zone)
+            if test_segmonto:
+                if (zone.category and not ZoneRegex.match(zone.category)) or not zone.category:
+                    zones_error.append(zone)
             if not zone.has_content and check_empty:
                 empty.append(zone)
         for line in self.get_textlines(check_empty=check_empty):
-            if (line.category is not None and not LineRegex.match(line.category)) or line.category is None:
-                line_error.append(line)
+            if test_segmonto:
+                if (line.category is not None and not LineRegex.match(line.category)) or line.category is None:
+                    line_error.append(line)
             if not line.has_content and check_empty:
                 empty.append(line)
         return zones_error, line_error, empty
@@ -70,9 +77,21 @@ class XmlParser:
     def _check_zone_content(self, zone: ET._Element) -> bool:
         raise NotImplemented
 
+    def check_image_link(self, filepath: Optional[str] = None) -> Tuple[str, bool]:
+        raise NotImplementedError
+
+    def _check_image_link(self, filepath: Optional[str], xpath_results: Iterable[str]) -> Tuple[str, bool]:
+        if not filepath:
+            raise FileNotFoundError("Can't check an image link without a filepath")
+        for filename in xpath_results:
+            filename = str(filename)
+            filename = os.path.join(os.path.dirname(filepath), filename)
+            return filename, os.path.exists(filename)
+        return "", False
+
 
 class PageXML(XmlParser):
-    def __init__(self, file: Union[str, ET._Document]):
+    def __init__(self, file: Union[str, ET._ElementTree, IO]):
         if isinstance(file, str):
             self.xml = ET.parse(file)
         else:
@@ -121,6 +140,9 @@ class PageXML(XmlParser):
             return bool(_line.text.strip())
         return False
 
+    def check_image_link(self, filepath: Optional[str] = None) -> Tuple[str, bool]:
+        return self._check_image_link(filepath, self.xml.xpath("//@imageFilename"))
+
 
 class AltoXML(XmlParser):
     _Regions = {'TextBlock': 'text',
@@ -128,7 +150,7 @@ class AltoXML(XmlParser):
                 'GraphicalElementType': 'graphic',
                 'ComposedBlock': 'composed'}
 
-    def __init__(self, file: Union[str, ET._Document]):
+    def __init__(self, file: Union[str, ET._ElementTree, IO]):
         if isinstance(file, str):
             self.xml = ET.parse(file)
         else:
@@ -178,3 +200,9 @@ class AltoXML(XmlParser):
 
     def _check_zone_content(self, zone: ET._Element) -> bool:
         return zone.find(".//{*}TextLine") is not None
+
+    def check_image_link(self, filepath: Optional[str] = None) -> Tuple[str, bool]:
+        return self._check_image_link(
+            filepath,
+            [el.text for el in self.xml.findall("//{*}fileName")]
+        )

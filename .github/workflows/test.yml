@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8]
+        python-version: [3.8, 3.9, "3.10"]
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
@@ -17,8 +17,8 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install nose coverage
+        python setup.py develop
+        pip install nose2 coverage
     - name: Test with nose
       run: |
-        nosetests ./tests --with-coverage --cover-package=htrvx --cover-xml --verbose
+        nose2 -s ./tests --coverage=htrvx --coverage-report xml  --verbose

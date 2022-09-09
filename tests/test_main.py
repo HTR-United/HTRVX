@@ -2,6 +2,8 @@ import os.path
 from unittest import TestCase
 from click.testing import CliRunner
 from htrvx.cli import cmd
+from htrvx.testing import test_single, test
+from lxml.etree import parse
 
 
 class AltoTestCase(TestCase):
@@ -67,30 +69,33 @@ class AltoTestCase(TestCase):
     def test_segmonto_wrong_tag(self):
         result = self.cmd("--verbose", "--segmonto", "--group", self.getFile("segmonto_wrong_tag.xml"))
         self.assertEqual(result.exit_code, 1, "Test fails")
-        self.assertIn("(1 wrongly tagged zones, 1 wrongly tagged lines)", result.output,
-                      "Correct amount is found")
-        self.assertIn("`WrongZoneType` tag for zones is forbidden (1 annotations): #incorrect_zone", result.output,
+        self.assertIn("1 wrongly tagged zones", result.output, "Correct amount of zones is found")
+        self.assertIn("1 wrongly tagged lines", result.output, "Correct amount of lines is found")
+        self.assertIn("`WrongZoneType` tag for zone(s) is forbidden (1 annotations): #incorrect_zone", result.output,
                       "Type is shown and zone id is shown")
-        self.assertIn("`WrongLineType` tag for lines is forbidden (1 annotations): #incorrect_line", result.output,
+        self.assertIn("`WrongLineType` tag for line(s) is forbidden (1 annotations): #incorrect_line", result.output,
                       "Type is shown and zone id is shown")
         self.assertIn("0/1 valid XML files", result.output, "Nothing is valid")
 
     def test_segmonto_no_tag(self):
         result = self.cmd("--verbose", "--segmonto", "--group", self.getFile("segmonto_empty_tag.xml"))
         self.assertEqual(result.exit_code, 1, "Test fails")
-        self.assertIn("(1 wrongly tagged zones, 1 wrongly tagged lines)", result.output,
-                      "Correct amount is found")
-        self.assertIn("*Empty* tag for zones is forbidden (1 annotations): #incorrect_zone", result.output,
-                      "Missing type is shown and zone id is shown")
-        self.assertIn("*Empty* tag for lines is forbidden (1 annotations): #incorrect_line", result.output,
-                      "Missing Type is shown and zone id is shown")
+        self.assertIn("1 wrongly tagged zones", result.output, "Correct amount of zones is found")
+        self.assertIn("1 wrongly tagged lines", result.output, "Correct amount of lines is found")
+        self.assertIn(
+            "Missing tag for zone(s) is forbidden (1 annotations): #incorrect_zone", result.output,
+            "Missing type is shown and zone id is shown"
+        )
+        self.assertIn(
+            "Missing tag for line(s) is forbidden (1 annotations): #incorrect_line", result.output,
+            "Missing Type is shown and zone id is shown"
+        )
         self.assertIn("0/1 valid XML files", result.output, "Nothing is valid")
 
     def test_schema_fails(self):
         """ Schema should fail """
         result = self.cmd("--verbose", "--xsd", "--group", self.getFile("schema_fails.xml"))
         self.assertEqual(result.exit_code, 1, "Test fails")
-
         if self.FOLDER == "alto":
             self.assertIn(
                 "Element 'alto:DescriptionW': This element is not expected. Expected is one of"
@@ -115,6 +120,27 @@ class AltoTestCase(TestCase):
 
         self.assertIn("1/1 valid XML files", result.output, "Everything is valid")
 
+    def test_image_no_link(self):
+        """ Test should fail when no image is linked """
+        result = self.cmd("--verbose", "--check-image", "--group", self.getFile("image_no_link.xml"))
+
+        self.assertEqual(result.exit_code, 1, "Test fail")
+        self.assertIn("0/1 valid XML files", result.output, "Test should fail")
+        self.assertIn("Image link check's test failed: No image file were declared in the XML..",
+                      result.output,
+                      "Precise error should be shown for image link checking")
+
+    def test_image_wrong_link(self):
+        """ Test should fail when the linked image points nowhere"""
+        result = self.cmd("--verbose", "--check-image", "--group", self.getFile("image_wronglink.xml"))
+        self.assertEqual(result.exit_code, 1, "Test fail")
+        self.assertIn("0/1 valid XML files", result.output, "Test should fail")
+
+        self.assertIn("Image link check's test failed: Image file at path "
+                      f"`{self.getFile('FileNotFound.jpeg')}` not found..",
+                      result.output,
+                      "Precise error should be shown for image link checking")
+
     def test_segmonto_complex(self):
         """ Schema should automatically be downloaded """
         result = self.cmd("--verbose", "--segmonto", "--group",
@@ -130,6 +156,88 @@ class AltoTestCase(TestCase):
         self.assertEqual(result.exit_code, 1, "Test fails")
 
         self.assertIn("1/2 valid XML files", result.output, "One file does not pass")
+
+    def test_io_working_single(self):
+        """ Schema should automatically be downloaded """
+        xml = parse(self.getFile("working.xml"))
+        log = test_single(
+            xml, xsd=True, segmonto=True, group=True, check_empty=False,
+            format=self.FOLDER
+        )
+        self.assertEqual(log.status, True, "Test should pass on opened files")
+        self.assertEqual(len(log), 3, "Three tests should have been done")
+
+        file = open(self.getFile("working.xml"))
+        log = test_single(file, xsd=True, segmonto=True, group=True, check_empty=False,
+            format=self.FOLDER)
+        self.assertEqual(log.status, True, "Test should pass on opened files")
+        self.assertEqual(len(log), 3, "Three tests should have been done")
+
+    def test_io_failing_single(self):
+        """ Schema should automatically be downloaded """
+        xml = parse(self.getFile("empty_line.xml"))
+        log = test_single(xml, xsd=True, segmonto=True, group=True, check_empty=True, raise_empty=True,
+            format=self.FOLDER)
+        self.assertEqual(log.status, False, "Test should pass on XML parsed files")
+        self.assertEqual(len(log), 5, "Three tests should have been done")
+        file = open(self.getFile("empty_line.xml"))
+        log = test_single(file, xsd=True, segmonto=True, group=True, check_empty=True, raise_empty=True,
+            format=self.FOLDER)
+        self.assertEqual(log.status, False, "Test should pass on XML parsed files")
+        self.assertEqual(len(log), 5, "Three tests should have been done")
+
+    def test_io_working_multiple(self):
+        """ Test that multiple files are checked correctly """
+        xml = [
+            parse(self.getFile("working.xml")),
+            parse(self.getFile("working.xml"))
+        ]
+        log, status = test(
+            xml, segmonto=True, group=True, check_empty=False,
+            format=self.FOLDER
+        )
+        self.assertEqual(status, True, "Test should pass on opened files")
+        self.assertEqual(len(log["File 001"]), 2, "Two tests should have been done")
+
+        file = [open(self.getFile("working.xml")), open(self.getFile("working.xml"))]
+        log, status = test(
+            file, segmonto=True, group=True, check_empty=False,
+            format=self.FOLDER
+        )
+        self.assertEqual(status, True, "Test should pass on opened files")
+        self.assertEqual(len(log["File 001"]), 2, "Two tests should have been done")
+        self.assertEqual(len(log["File 002"]), 2, "Two tests should have been done")
+        for f in file:
+            f.close()
+
+    def test_io_failing_multiple(self):
+        """ Test that multiple files are checked correctly """
+        xml = [
+            parse(self.getFile("working.xml")),
+            parse(self.getFile("empty_line.xml"))
+        ]
+        log, status = test(
+            xml, segmonto=True, group=True, check_empty=True, raise_empty=True,
+            format=self.FOLDER
+        )
+        self.assertEqual(status, False, "Test should fail on opened files")
+        self.assertEqual(len(log["File 001"]), 4, "Four tests should have been done")
+        self.assertEqual(log["File 001"].status, True, "First file passes")
+        self.assertEqual(len(log["File 002"]), 4, "Four tests should have been done")
+        self.assertEqual(log["File 002"].status, False, "Second file fails")
+
+        file = [open(self.getFile("working.xml")), open(self.getFile("empty_line.xml"))]
+        log, status = test(
+            file, segmonto=True, group=True, check_empty=True, raise_empty=True,
+            format=self.FOLDER
+        )
+        self.assertEqual(status, False, "Test should fail on opened files")
+        self.assertEqual(len(log["File 001"]), 4, "Two tests should have been done")
+        self.assertEqual(log["File 001"].status, True, "First file passes")
+        self.assertEqual(len(log["File 002"]), 4, "Two tests should have been done")
+        self.assertEqual(log["File 002"].status, False, "Second file fails")
+        for f in file:
+            f.close()
 
 
 class PageTestCase(AltoTestCase):
