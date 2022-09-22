@@ -126,9 +126,9 @@ class AltoTestCase(TestCase):
             )
         else:
             self.assertIn(
-                "Element '{http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15}MetadataW': "
+                "Element 'page:MetadataW': "
                 "This element is not expected. Expected is ( "
-                "{http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15}Metadata ). on line(s): 5",
+                "page:Metadata ). on line(s): 5",
                 result.output,
                 "Error is found on line 5 with details"
             )

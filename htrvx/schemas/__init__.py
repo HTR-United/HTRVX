@@ -57,7 +57,7 @@ class Validator:
 
 
 def simplify_log_line(string: etree._LogEntry) -> str:
-    # ToDo: Add cleaning for PAGE as well ?
-    return string.message.replace("{http://www.loc.gov/standards/alto/ns-v4#}", "alto:")
+    return string.message.replace("{http://www.loc.gov/standards/alto/ns-v4#}", "alto:")\
+        .replace("{http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15}", "page:")
 
 

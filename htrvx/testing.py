@@ -13,7 +13,13 @@ Space1 = "  "
 Space2 = "    "
 
 
-def _color(status):
+def _color(status, mode: Optional[str] = None):
+    if mode == "zen":
+        if status == "failure":
+            return "red"
+        else:
+            return None
+
     if status == "success":
         return "green"
     elif status == "warning":
@@ -48,7 +54,9 @@ class Status:
     errors: Optional[List[str]] = None
     level: Optional[Literal["zone", "line"]] = None
 
-    def print(self) -> None:
+    def print(self, mode: Optional[str] = None) -> None:
+        if mode in {"minimal", "low"} and self.status == "success":
+            return None
         additional_info = ""
         if self.level:
             additional_info = f" at the \033[1m{self.level}\033[0m's level"
@@ -57,13 +65,13 @@ class Status:
             click.style(
                 f"{Space1}{_char(self.status)} \033[1m{' '.join(self.task.capitalize().split('-'))}\033[0m's "
                 f"test{additional_info} {_msg(status=self.status)}{': '+self.message if self.message else ''}.",
-                fg=_color(self.status)
+                fg=_color(self.status, mode=mode)
             ),
             color=True
         )
-        if self.errors:
+        if self.errors and mode != "minimal":
             for error in self.errors:
-                click.echo(click.style(f"{Space2}┗ {error}", fg="blue"), color=True)
+                click.echo(click.style(f"{Space2}┗ {error}", fg="blue" if mode != "zen" else None), color=True)
 
 
 @dataclass
@@ -98,10 +106,10 @@ class FileLog:
     def __bool__(self) -> bool:
         return self.status
 
-    def print(self) -> None:
+    def print(self, mode: Optional[str] = None) -> None:
         if self.tests:
             for element in self.tests:
-                element.print()
+                element.print(mode=mode)
 
 
 def _empty_or_wrong(category):
@@ -288,7 +296,8 @@ def test(
     check_empty: bool = True,
     raise_empty: bool = False,
     check_image: bool = False,
-    xsd: bool = False
+    xsd: bool = False,
+    verbose_level: str = "all"
 ) -> Tuple[Dict[str, FileLog], bool]:
     """ Tests all single files in files and returns their filelog as well as a global boolean status
 
@@ -313,11 +322,16 @@ def test(
             status_string: str = "success" if passed == total else "failure"
             # Print the element overal status
             click.echo(
-                click.style(f"{_char(status_string)} [{passed}/{total}] {file_name}", fg=_color(status_string)),
+                click.style(
+                    f"{_char(status_string)} [{passed}/{total}] {file_name}",
+                    fg=_color(status_string, mode=verbose_level)
+                ),
                 color=True
             )
+            if status_string == "success" and verbose_level in {"minimal", "low"}:
+                continue
             # Print the details
-            filelog.print()
+            filelog.print(mode=verbose_level)
 
     passing_files = [int(bool(file_statuses)) for file_statuses in statuses.values()]
 
