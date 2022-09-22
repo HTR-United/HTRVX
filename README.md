@@ -24,16 +24,24 @@ Each verification is an opt-in verification: you need to express the fact that y
 
 Other parameters mainly have to do with verbosity: `--verbose` displays details about errors, `--group` groups errors (instead of showing one line per error, groups by error types).
 
-| Parameters               | Default | Function                                                    |
-|--------------------------|---------|-------------------------------------------------------------|
-| -v, --verbose            | False   | Prints more information                                     |
-| -f, --format [alto,page] | alto    | Format of files                                             |
-| -s, --segmonto           | False   | Apply Segmonto Zoning verification                          |
-| -e, --check-empty        | False   | Check for empty lines or empty zones                        |
-| -r, --raise-empty        | False   | Warns but not fails if empty lines or empty zones are found |
-| -x, --xsd                | False   | Apply XSD Schema verification                               |
-| -g, --group              | False   | Group error types (reduce verbosity)                        |
-| -i, --check-image        | False   | Check if the image link in the XML points to the right path |
+| Parameters               | Default | Function                                                                                 |
+|--------------------------|---------|------------------------------------------------------------------------------------------|
+| -v, --verbose            | False   | Prints more information                                                                  |
+| -f, --format [alto,page] | alto    | Format of files                                                                          |
+| -s, --segmonto           | False   | Apply Segmonto Zoning verification                                                       |
+| -e, --check-empty        | False   | Check for empty lines or empty zones                                                     |
+| -r, --raise-empty        | False   | Warns but not fails if empty lines or empty zones are found                              |
+| -x, --xsd                | False   | Apply XSD Schema verification                                                            |
+| -g, --group              | False   | Group error types (reduce verbosity)                                                     |
+| -i, --check-image        | False   | Check if the image link in the XML points to the right path                              |
+| -l, --verbose-level      | zen     | Level of details and amount of color shown in the logs (see [below](#verbosity-levels)). |
+
+### Verbosity levels
+
+- `minimal`: shows only failing tests, no details.
+- `low`: shows only failing test and their details, such as which lines fails in a file.
+- `zen` (default): shows all tests and their details, but displays only one color (red for errors).
+- `all`: shows everything.
 
 ## Github Action code
 

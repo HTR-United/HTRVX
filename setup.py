@@ -19,7 +19,7 @@ DESCRIPTION = 'HTRVX, HTR Validation with XSD'
 URL = 'https://github.com/htr-united/htrvx'
 AUTHOR = 'Thibault Clérice & Ariane Pinche'
 REQUIRES_PYTHON = '>=3.6.0'
-VERSION = "0.0.12"
+VERSION = "0.0.13"
 
 # What packages are required for this module to be executed?
 
