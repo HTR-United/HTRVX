@@ -20,17 +20,23 @@ from htrvx.testing import test
               help="Warns but not fails if empty lines or empty zones are found", show_default=True)
 @click.option("-x", "--xsd", is_flag=True, default=False,
               help="Apply XSD Schema verification", show_default=True)
+@click.option("-l", "--verbose-level", default="zen", type=click.Choice(["minimal", "low", "zen", "all"]),
+              help="Verbosity level. Minimal show only failing test, "
+                   "zen only displays one color (red), "
+                   "low shows failing tests with their debug info, "
+                   "all shows everything", show_default=True)
 @click.option("-g", "--group", default=False, is_flag=True, help="Group error types")
 def cmd(files, verbose: bool = False, group: bool = True, format: str ="alto", segmonto: bool = True,
         check_empty: bool = True, raise_empty: bool = True,
-        xsd: bool = False, check_image: bool = False):
+        xsd: bool = False, check_image: bool = False, verbose_level: str = "zen"):
     """ Apply the XSD on FILES. XSD can be a URI, a filepath or a schema provided with this tool (eg. "ALTO-Segmonto")
 
     eg. `htrvx ./data/**/*.xml --group --schema --format alto`
 
     """
     if test(files, verbose=verbose, group=group, format=format, segmonto=segmonto,
-            xsd=xsd, raise_empty=raise_empty, check_empty=check_empty, check_image=check_image)[1]:
+            xsd=xsd, raise_empty=raise_empty, check_empty=check_empty, check_image=check_image,
+            verbose_level=verbose_level)[1]:
         sys.exit(0)
     else:
         sys.exit(1)
