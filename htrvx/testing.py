@@ -1,5 +1,9 @@
 from collections import defaultdict
-from typing import Iterable, List, Literal, Dict, Optional, Tuple, Union, IO
+from typing import Iterable, List, Dict, Optional, Tuple, Union, IO
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal
 
 import click
 from lxml import etree

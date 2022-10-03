@@ -19,7 +19,7 @@ DESCRIPTION = 'HTRVX, HTR Validation with XSD'
 URL = 'https://github.com/htr-united/htrvx'
 AUTHOR = 'Thibault Clérice & Ariane Pinche'
 REQUIRES_PYTHON = '>=3.6.0'
-VERSION = "0.0.13"
+VERSION = "0.0.14"
 
 # What packages are required for this module to be executed?
 
@@ -28,8 +28,10 @@ with open(os.path.join(here, 'requirements.txt')) as f:
 
 # What packages are optional?
 EXTRAS = {
-    # 'fancy feature': ['django'],
+    ":python_version<'3.8'": ["typing_extensions"]
 }
+    # 'fancy feature': ['django'],
+#}
 
 # The rest you shouldn't have to touch too much :)
 # ------------------------------------------------
