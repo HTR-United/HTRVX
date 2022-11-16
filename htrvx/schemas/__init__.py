@@ -8,15 +8,32 @@ import logging
 logger = logging.getLogger(__name__)
 
 _here = os.path.dirname(__file__)
+
+
 Schemas = {
     "alto": os.path.join(_here, "", "alto4.xsd"),
     "page": os.path.join(_here, "", "page2019.xsd")
 }
 
 
+class CacheResolver(etree.Resolver):
+    cache = _here
+
+    def resolve(self, URL, id, context):
+        # determine cache path
+        if os.path.exists(URL):
+            return self.resolve_file(open(URL), context, base_url=URL)
+        xsd_path = Validator.cache_xsd_path(URL)
+        if os.path.exists(xsd_path):
+            return self.resolve_file(open(xsd_path), context, base_url=URL)
+        raise requests.HTTPError(f"Unable to reach {URL} and not found in cache at {xsd_path}")
+
+
 class Validator:
     def __init__(self, xsd_path: str):
-        xmlschema_doc = etree.parse(self.get_schema(xsd_path))
+        parser = etree.XMLParser(no_network=True)
+        parser.resolvers.add(CacheResolver())
+        xmlschema_doc = etree.parse(self.get_schema(xsd_path), parser=parser)
         self.xmlschema = etree.XMLSchema(xmlschema_doc)
 
     @staticmethod
@@ -34,10 +51,17 @@ class Validator:
         return None
 
     @staticmethod
+    def cache_xsd_path(xsd_path):
+        xsd_path = xsd_path.replace("http://", "").replace("https://", "")
+        return os.path.join(_here, "", f"{hashlib.sha256(xsd_path.encode()).hexdigest()}.xsd")
+
+    @staticmethod
     def get_schema(xsd_path):
         if xsd_path.startswith("http://") or xsd_path.startswith("https://"):
             new_xsd_path = f"downloaded_{hashlib.sha256(xsd_path.encode()).hexdigest()}.xsd"
-            if os.path.exists(new_xsd_path):
+            if os.path.exists(Validator.cache_xsd_path(xsd_path)):
+                return Validator.cache_xsd_path(xsd_path)
+            elif os.path.exists(new_xsd_path):
                 return new_xsd_path
             try:
                 schema_req = requests.get(xsd_path)
@@ -62,7 +86,6 @@ class Validator:
         else:
             xml_doc = xml_path
         result = self.xmlschema.validate(xml_doc)
-
         return result
 
 
