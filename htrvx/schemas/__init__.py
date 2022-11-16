@@ -3,6 +3,9 @@ import requests
 import hashlib
 from typing import Optional, Union
 from lxml import etree
+import logging
+
+logger = logging.getLogger(__name__)
 
 _here = os.path.dirname(__file__)
 Schemas = {
@@ -36,8 +39,15 @@ class Validator:
             new_xsd_path = f"downloaded_{hashlib.sha256(xsd_path.encode()).hexdigest()}.xsd"
             if os.path.exists(new_xsd_path):
                 return new_xsd_path
-            schema_req = requests.get(xsd_path)
-            schema_req.raise_for_status()
+            try:
+                schema_req = requests.get(xsd_path)
+                schema_req.raise_for_status()
+            except requests.HTTPError as E:
+                logger.warning(f"HTTP error while contacting {xsd_path}: {E}. Trying HTTPS if HTTP failed.")
+                # ALTO seems to throw an error because they moved to HTTP
+                if xsd_path.startswith("http://"):
+                    return Validator.get_schema(xsd_path.replace("http://", "https://"))
+                raise
             with open(new_xsd_path, "w") as f:
                 f.write(schema_req.text)
             return new_xsd_path
