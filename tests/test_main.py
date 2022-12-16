@@ -113,6 +113,72 @@ class AltoTestCase(TestCase):
         )
         self.assertIn("0/1 valid XML files", result.output, "Nothing is valid")
 
+    def test_custom_zone_working_tag(self):
+        """ Check that custom zone works, including by overriding Segmonto """
+        result = self.cmd("--verbose", "--zone", "WrongZoneType", "--zone", "MarginTextZone",
+                          "--group", self.getFile("segmonto_wrong_tag.xml"))
+        self.assertEqual(result.exit_code, 0, "Test passes")
+        self.assertIn(
+            "Custom typing check's test at the zone's level passed successfully.",
+            result.output,
+            "Zone passes"
+        )
+        self.assertIn("1/1 valid XML files", result.output, "Everything is valid")
+
+    def test_custom_zone_failing_tag(self):
+        """ Check that custom zone works, including by overriding Segmonto and failing on the later """
+        result = self.cmd("--verbose", "--zone", "WrongZoneType",
+                          "--group", self.getFile("segmonto_wrong_tag.xml"))
+        self.assertEqual(result.exit_code, 1, "Test passes")
+        self.assertIn(
+            "`MarginTextZone` tag for zone(s) is forbidden (1 annotations): #correct_zone",
+            result.output,
+            "Zone fails"
+        )
+        self.assertIn("0/1 valid XML files", result.output, "Nothing is valid")
+
+    def test_custom_line_working_tag(self):
+        """ Check that custom line works, including by overriding Segmonto """
+        result = self.cmd("--verbose", "--line", "WrongLineType", "--line", "DefaultLine",
+                          "--group", self.getFile("segmonto_wrong_tag.xml"))
+        self.assertEqual(result.exit_code, 0, "Test passes")
+        self.assertIn(
+            "Custom typing check's test at the line's level passed successfully.",
+            result.output,
+            "Line passes"
+        )
+        self.assertIn("1/1 valid XML files", result.output, "Everything is valid")
+
+    def test_custom_line_failing_tag(self):
+        """ Check that custom line works, including by overriding Segmonto and failing on the later """
+        result = self.cmd("--verbose", "--line", "WrongLineType",
+                          "--group", self.getFile("segmonto_wrong_tag.xml"))
+        self.assertEqual(result.exit_code, 1, "Test passes")
+        self.assertIn(
+            "`DefaultLine` tag for line(s) is forbidden (1 annotations): #correct_line",
+            result.output,
+            "Line fails"
+        )
+        self.assertIn("0/1 valid XML files", result.output, "Nothing is valid")
+
+    def test_custom_mixed_working_tag(self):
+        """ Check that custom line and zone works mixed, including by overriding Segmonto """
+        result = self.cmd("--verbose", "--line", "WrongLineType", "--line", "DefaultLine",
+                          "--zone", "WrongZoneType", "--zone", "MarginTextZone",
+                          "--group", self.getFile("segmonto_wrong_tag.xml"))
+        self.assertEqual(result.exit_code, 0, "Test passes")
+        self.assertIn(
+            "Custom typing check's test at the line's level passed successfully.",
+            result.output,
+            "Line passes"
+        )
+        self.assertIn(
+            "Custom typing check's test at the zone's level passed successfully.",
+            result.output,
+            "Zone passes"
+        )
+        self.assertIn("1/1 valid XML files", result.output, "Everything is valid")
+
     def test_schema_fails(self):
         """ Schema should fail """
         result = self.cmd("--verbose", "--xsd", "--group", self.getFile("schema_fails.xml"))

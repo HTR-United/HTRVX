@@ -10,7 +10,7 @@
    </Description>
    <Tags>
       <OtherTag ID="BT1705" LABEL="DropCapitalZone" DESCRIPTION="block type DropCapitalZone" />
-      <OtherTag ID="BT1707" LABEL="MainZone" DESCRIPTION="block type MainZone" />
+      <OtherTag ID="BT1707" LABEL="MarginTextZone" DESCRIPTION="block type MarginTextZone" />
       <OtherTag ID="BT1708" LABEL="WrongZoneType" DESCRIPTION="block type WrongZoneType" />
       <OtherTag ID="LT571" LABEL="WrongLineType" DESCRIPTION="line type WrongLineType" />
       <OtherTag ID="LT570" LABEL="DefaultLine" DESCRIPTION="line type DefaultLine" />
