@@ -18,6 +18,7 @@ Each verification is an opt-in verification: you need to express the fact that y
 
 - `--segmonto` will check for Segmonto compliancy
   - You can use your own vocabulary or a restricted Segmonto vocabulary by using `--zone ZONENAME` and `--line LINENAME` such as `htrvx [...] --line DefaultLine --line HeadingLine --zone MainZone`
+  - You can use `--allow-untagged` with either `line`, `zone` or `both` so that zones without type are allowed. If you want to limit such lines or zone, combine it with `--max-untagged-zones N` or `--max-untagged-lines N` where N is the number of allowed occurrences. 
 - `--xsd` will check if the data are compliant with XML Schemas
 - `--check-empty` will check if regions have no lines or if lines have no text
     - `--check-empty` can be refined with `--raise-empty` to throw an error if empty elements are found, otherwise it's simply reported.
