@@ -141,6 +141,49 @@ class AltoTestCase(TestCase):
         self.assertEqual(result.exit_code, 0, "Test passed")
         self.assertIn("1/1 valid XML files", result.output, "Everything is valid")
 
+    def test_not_tagged_limit_two_zones(self):
+        result = self.cmd(
+            "--verbose", "--group",
+            "--zone", "MainZone",
+            "--zone", "MarginTextZone",
+            "--allow-untagged", "both", "--max-untagged-zones", "2",
+            self.getFile("2empty_zones.xml"))
+        self.assertEqual(result.exit_code, 0, "Test passed")
+        self.assertIn("1/1 valid XML files", result.output, "Everything is valid")
+
+    def test_not_tagged_limit_one_zones(self):
+        result = self.cmd("--verbose", "--group",
+                          "--zone", "MainZone", "--allow-untagged", "both", "--max-untagged-zones", "1",
+                          self.getFile("2empty_zones.xml"))
+        self.assertIn(
+            "Missing tag for zone(s) is forbidden (2 annotations): #incorrect_zone1, #incorrect_zone2",
+            result.output,
+            "Details are visible for the 2 zones"
+        )
+        self.assertEqual(result.exit_code, 1, "Test fails")
+        self.assertIn("0/1 valid XML files", result.output, "Nothing is valid")
+
+    def test_not_tagged_limit_two_lines(self):
+        result = self.cmd(
+            "--verbose", "--group",
+            "--line", "DefaultLine",
+            "--allow-untagged", "both", "--max-untagged-lines", "2",
+            self.getFile("2empty_zones.xml"))
+        self.assertEqual(result.exit_code, 0, "Test passed")
+        self.assertIn("1/1 valid XML files", result.output, "Everything is valid")
+
+    def test_not_tagged_limit_one_lines(self):
+        result = self.cmd("--verbose", "--group",
+                          "--line", "DefaultLine", "--allow-untagged", "both", "--max-untagged-lines", "1",
+                          self.getFile("2empty_zones.xml"))
+        self.assertIn(
+            "Missing tag for line(s) is forbidden (2 annotations): #incorrect_line1, #incorrect_line2",
+            result.output,
+            "Details are visible for the 2 lines"
+        )
+        self.assertEqual(result.exit_code, 1, "Test fails")
+        self.assertIn("0/1 valid XML files", result.output, "Nothing is valid")
+
     def test_custom_zone_working_tag(self):
         """ Check that custom zone works, including by overriding Segmonto """
         result = self.cmd("--verbose", "--zone", "WrongZoneType", "--zone", "MarginTextZone",
