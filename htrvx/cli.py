@@ -30,10 +30,19 @@ from typing import Sequence, Optional
                    "low shows failing tests with their debug info, "
                    "all shows everything", show_default=True)
 @click.option("-g", "--group", default=False, is_flag=True, help="Group error types")
+@click.option("--allow-untagged", default=None, type=click.Choice(["line", "zone", "both"]), show_default=True,
+              help="Allow untagged zone, line or both in type checking")
+@click.option("--max-untagged-zones", default=-1, type=click.INT, show_default=True,
+              help="Maximum number of untagged zones")
+@click.option("--max-untagged-lines", default=-1, type=click.INT, show_default=True,
+              help="Maximum number of untagged lines")
 def cmd(files, verbose: bool = False, group: bool = True, format: str ="alto", segmonto: bool = True,
         check_empty: bool = True, raise_empty: bool = True,
         xsd: bool = False, check_image: bool = False, verbose_level: str = "zen",
-        zone: Optional[Sequence[str]] = None, line: Optional[Sequence[str]] = None):
+        zone: Optional[Sequence[str]] = None, line: Optional[Sequence[str]] = None,
+        allow_untagged: Optional[str] = None,
+        max_untagged_zones: int = -1,
+        max_untagged_lines: int = -1):
     """ Apply the XSD on FILES. XSD can be a URI, a filepath or a schema provided with this tool (eg. "ALTO-Segmonto")
 
     eg. `htrvx ./data/**/*.xml --group --schema --format alto`
@@ -43,9 +52,12 @@ def cmd(files, verbose: bool = False, group: bool = True, format: str ="alto", s
     eg. `htrvx ./data/**/*.xml --group --schema --format alto --zone Col --zone Header`
 
     """
+    if allow_untagged == "both":
+        allow_untagged = {"line", "zone"}
     if test(files, verbose=verbose, group=group, format=format, segmonto=segmonto,
             xsd=xsd, raise_empty=raise_empty, check_empty=check_empty, check_image=check_image,
-            verbose_level=verbose_level, zones=zone, lines=line)[1]:
+            verbose_level=verbose_level, zones=zone, lines=line, allow_untagged=allow_untagged,
+            max_untagged_zones=max_untagged_zones, max_untagged_lines=max_untagged_lines)[1]:
         sys.exit(0)
     else:
         sys.exit(1)

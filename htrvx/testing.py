@@ -201,7 +201,10 @@ def test_single(
     xsd: bool = False,
     check_image: bool = False,
     zones: Optional[Sequence[str]] = None,
-    lines: Optional[Sequence[str]] = None
+    lines: Optional[Sequence[str]] = None,
+    allow_untagged: Optional[Union[str, Sequence[str]]] = False,
+    max_untagged_zones: int = 0,
+    max_untagged_lines: int = 1
 ) -> FileLog:
     filelog = FileLog()
 
@@ -253,7 +256,10 @@ def test_single(
             check_empty=check_empty,
             check_typing=segmonto or custom_typing_check,
             typing_check_lines=line_regex,
-            typing_check_zones=zone_regex
+            typing_check_zones=zone_regex,
+            allow_untagged=allow_untagged,
+            max_untagged_zones=max_untagged_zones,
+            max_untagged_lines=max_untagged_lines
         )
 
         if segmonto or custom_typing_check:
@@ -326,7 +332,10 @@ def test(
     xsd: bool = False,
     verbose_level: str = "all",
     zones: Optional[Sequence[str]] = None,
-    lines: Optional[Sequence[str]] = None
+    lines: Optional[Sequence[str]] = None,
+    allow_untagged: Optional[Union[str, Sequence[str]]] = False,
+    max_untagged_zones: int = 0,
+    max_untagged_lines: int = 1
 ) -> Tuple[Dict[str, FileLog], bool]:
     """ Tests all single files in files and returns their filelog as well as a global boolean status
 
@@ -343,7 +352,9 @@ def test(
             file,
             group=group, format=format,
             segmonto=segmonto, check_empty=check_empty, raise_empty=raise_empty, xsd=xsd,
-            check_image=check_image, zones=zones, lines=lines
+            check_image=check_image, zones=zones, lines=lines, allow_untagged=allow_untagged,
+            max_untagged_zones=max_untagged_zones,
+            max_untagged_lines=max_untagged_lines
         )
         if verbose:
             filelog = statuses[file_name]

@@ -1,6 +1,6 @@
 import os.path
 import re
-from typing import Dict, Optional, Union, Iterable, Tuple, List, IO, Pattern
+from typing import Dict, Optional, Union, Iterable, Tuple, List, IO, Pattern, Sequence
 from dataclasses import dataclass
 import lxml.etree as ET
 
@@ -54,23 +54,47 @@ class XmlParser:
             check_empty: bool = False,
             check_typing: bool = False,
             typing_check_zones: Optional[Pattern] = None,
-            typing_check_lines: Optional[Pattern] = None
+            typing_check_lines: Optional[Pattern] = None,
+            allow_untagged: Optional[Union[str, Sequence[str]]] = False,
+            max_untagged_zones: int = 0,
+            max_untagged_lines: int = 1
     ) -> Tuple[List[Element], List[Element], List[Element]]:
         zones_error = []
         line_error = []
         empty = []
+        allow_empty_zone = "zone" in allow_untagged if allow_untagged else False
+        allow_empty_line = "line" in allow_untagged if allow_untagged else False
+        untagged_zones = []
+        untagged_lines = []
         for zone in self.get_zones(check_empty=check_empty):
             if check_typing and typing_check_zones:
-                if (zone.category and not typing_check_zones.match(zone.category)) or not zone.category:
+                if zone.category and not typing_check_zones.match(zone.category):
                     zones_error.append(zone)
+                elif not zone.category:
+                    if not allow_empty_zone:
+                        zones_error.append(zone)
+                    else:
+                        untagged_zones.append(zone)
             if not zone.has_content and check_empty:
                 empty.append(zone)
         for line in self.get_textlines(check_empty=check_empty):
             if check_typing and typing_check_lines:
-                if (line.category is not None and not typing_check_lines.match(line.category)) or line.category is None:
+                if line.category is not None and not typing_check_lines.match(line.category):
                     line_error.append(line)
+                elif not line.category:
+                    if not allow_empty_line:
+                        line_error.append(line)
+                    else:
+                        untagged_lines.append(line)
             if not line.has_content and check_empty:
                 empty.append(line)
+
+        if 0 <= max_untagged_zones < len(untagged_zones):
+            zones_error = untagged_zones
+
+        if 0 <= max_untagged_lines < len(untagged_lines):
+            line_error = untagged_lines
+
         return zones_error, line_error, empty
 
     def _check_line_content(self, line: ET._Element) -> bool:
