@@ -1,5 +1,6 @@
+import re
 from collections import defaultdict
-from typing import Iterable, List, Dict, Optional, Tuple, Union, IO
+from typing import Iterable, List, Dict, Optional, Tuple, Union, IO, Sequence
 try:
     from typing import Literal
 except ImportError:
@@ -9,7 +10,7 @@ import click
 from lxml import etree
 
 from htrvx.schemas import Validator, simplify_log_line
-from htrvx.zones import AltoXML, PageXML, Element
+from htrvx.zones import AltoXML, PageXML, Element, SegmontoZoneRegex, SegmontoLineRegex
 from dataclasses import dataclass
 
 # Spacing for printing
@@ -53,7 +54,7 @@ def _msg(status):
 @dataclass
 class Status:
     status: Literal["success", "warning", "failure"]
-    task: Literal["segmonto", "schema", "empty-verification", "image-link-check"]
+    task: Literal["segmonto", "schema", "empty-verification", "image-link-check", "custom-typing-check"]
     message: Optional[str] = None
     errors: Optional[List[str]] = None
     level: Optional[Literal["zone", "line"]] = None
@@ -98,8 +99,8 @@ class FileLog:
         statuses = [
             0 if file_status.status == "failure" else 1
             for file_status in self.tests
-        ]
-        return sum(statuses), len(self.tests)
+        ] if self.tests else []
+        return sum(statuses), len(self.tests or [])
 
     def __iter__(self) -> Iterable[Status]:
         return iter(self.tests) if self.tests else []
@@ -198,7 +199,9 @@ def test_single(
     check_empty: bool = True,
     raise_empty: bool = True,
     xsd: bool = False,
-    check_image: bool = False
+    check_image: bool = False,
+    zones: Optional[Sequence[str]] = None,
+    lines: Optional[Sequence[str]] = None
 ) -> FileLog:
     filelog = FileLog()
 
@@ -214,8 +217,21 @@ def test_single(
     else:
         parsed_xml = file
 
+    custom_typing_check = bool(zones or lines)
+
+    line_regex = None
+    zone_regex = None
+    if custom_typing_check:
+        if lines:
+            line_regex = re.compile("|".join([re.escape(pat) for pat in lines]))
+        if zones:
+            zone_regex = re.compile("|".join([re.escape(pat) for pat in zones]))
+    elif segmonto:
+        line_regex = SegmontoLineRegex
+        zone_regex = SegmontoZoneRegex
+
     # For some tests, we need to parse the file internally
-    if segmonto or check_empty or check_image:
+    if segmonto or check_empty or check_image or custom_typing_check:
         obj = cls(parsed_xml)
 
         if check_image:
@@ -233,27 +249,34 @@ def test_single(
                 message=message if message else None
             ))
 
-        zone_errors, line_errors, empty = obj.test(check_empty=check_empty, test_segmonto=segmonto)
+        zone_errors, line_errors, empty = obj.test(
+            check_empty=check_empty,
+            check_typing=segmonto or custom_typing_check,
+            typing_check_lines=line_regex,
+            typing_check_zones=zone_regex
+        )
 
-        if segmonto:
-            filelog.append(
-                Status(
-                    "success" if not zone_errors else "failure",
-                    task="segmonto",
-                    message=f"{len(zone_errors)} wrongly tagged zones" if zone_errors else "",
-                    errors=parse_segmonto_errors(zone_errors, group=group, element_type="zone"),
-                    level="zone"
+        if segmonto or custom_typing_check:
+            if segmonto or zones:
+                filelog.append(
+                    Status(
+                        "success" if not zone_errors else "failure",
+                        task="segmonto" if segmonto else "custom-typing-check",
+                        message=f"{len(zone_errors)} wrongly tagged zones" if zone_errors else "",
+                        errors=parse_segmonto_errors(zone_errors, group=group, element_type="zone"),
+                        level="zone"
+                    )
                 )
-            )
-            filelog.append(
-                Status(
-                    "success" if not line_errors else "failure",
-                    task="segmonto",
-                    message=f"{len(line_errors)} wrongly tagged lines" if line_errors else "",
-                    errors=parse_segmonto_errors(line_errors, group=group, element_type="line"),
-                    level="line"
+            if segmonto or lines:
+                filelog.append(
+                    Status(
+                        "success" if not line_errors else "failure",
+                        task="segmonto" if segmonto else "custom-typing-check",
+                        message=f"{len(line_errors)} wrongly tagged lines" if line_errors else "",
+                        errors=parse_segmonto_errors(line_errors, group=group, element_type="line"),
+                        level="line"
+                    )
                 )
-            )
 
         if check_empty:
             empty = parse_empty(empty, group=group)
@@ -301,7 +324,9 @@ def test(
     raise_empty: bool = False,
     check_image: bool = False,
     xsd: bool = False,
-    verbose_level: str = "all"
+    verbose_level: str = "all",
+    zones: Optional[Sequence[str]] = None,
+    lines: Optional[Sequence[str]] = None
 ) -> Tuple[Dict[str, FileLog], bool]:
     """ Tests all single files in files and returns their filelog as well as a global boolean status
 
@@ -318,7 +343,7 @@ def test(
             file,
             group=group, format=format,
             segmonto=segmonto, check_empty=check_empty, raise_empty=raise_empty, xsd=xsd,
-            check_image=check_image
+            check_image=check_image, zones=zones, lines=lines
         )
         if verbose:
             filelog = statuses[file_name]
