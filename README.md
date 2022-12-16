@@ -17,6 +17,7 @@ The basic way to run the script is `htrvx PATHTOFILES --format FORMAT`, eg. `htr
 Each verification is an opt-in verification: you need to express the fact that you want to check it.
 
 - `--segmonto` will check for Segmonto compliancy
+  - You can use your own vocabulary or a restricted Segmonto vocabulary by using `--zone ZONENAME` and `--line LINENAME` such as `htrvx [...] --line DefaultLine --line HeadingLine --zone MainZone`
 - `--xsd` will check if the data are compliant with XML Schemas
 - `--check-empty` will check if regions have no lines or if lines have no text
     - `--check-empty` can be refined with `--raise-empty` to throw an error if empty elements are found, otherwise it's simply reported.
@@ -35,6 +36,8 @@ Other parameters mainly have to do with verbosity: `--verbose` displays details 
 | -g, --group              | False   | Group error types (reduce verbosity)                                                     |
 | -i, --check-image        | False   | Check if the image link in the XML points to the right path                              |
 | -l, --verbose-level      | zen     | Level of details and amount of color shown in the logs (see [below](#verbosity-levels)). |
+| --zone TEXT              | None    | Provide a custom zone to control zone types instead of Segmonto                          |
+| --line TEXT              | None    | Provide a custom line to control Line types instead of Segmonto                          |
 
 ### Verbosity levels
 
