@@ -113,6 +113,34 @@ class AltoTestCase(TestCase):
         )
         self.assertIn("0/1 valid XML files", result.output, "Nothing is valid")
 
+    def test_segmonto_no_tag_but_allowed_untagged_zones(self):
+        result = self.cmd("--verbose", "--segmonto", "--group", "--allow-untagged", "zone",
+                          self.getFile("segmonto_empty_tag.xml"))
+        self.assertEqual(result.exit_code, 1, "Test fails")
+        self.assertIn("1 wrongly tagged lines", result.output, "Correct amount of lines is found")
+        self.assertIn(
+            "Missing tag for line(s) is forbidden (1 annotations): #incorrect_line", result.output,
+            "Missing Type is shown and zone id is shown"
+        )
+        self.assertIn("0/1 valid XML files", result.output, "Nothing is valid")
+
+    def test_segmonto_no_tag_but_allowed_untagged_lines(self):
+        result = self.cmd("--verbose", "--segmonto", "--group", "--allow-untagged", "line",
+                          self.getFile("segmonto_empty_tag.xml"))
+        self.assertEqual(result.exit_code, 1, "Test fails")
+        self.assertIn("1 wrongly tagged zones", result.output, "Correct amount of zones is found")
+        self.assertIn(
+            "Missing tag for zone(s) is forbidden (1 annotations): #incorrect_zone", result.output,
+            "Missing type is shown and zone id is shown"
+        )
+        self.assertIn("0/1 valid XML files", result.output, "Nothing is valid")
+
+    def test_segmonto_no_tag_but_allowed_untagged_both(self):
+        result = self.cmd("--verbose", "--segmonto", "--group", "--allow-untagged", "both",
+                          self.getFile("segmonto_empty_tag.xml"))
+        self.assertEqual(result.exit_code, 0, "Test passed")
+        self.assertIn("1/1 valid XML files", result.output, "Everything is valid")
+
     def test_custom_zone_working_tag(self):
         """ Check that custom zone works, including by overriding Segmonto """
         result = self.cmd("--verbose", "--zone", "WrongZoneType", "--zone", "MarginTextZone",
