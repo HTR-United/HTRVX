@@ -1,6 +1,6 @@
 import os.path
 import re
-from typing import Dict, Optional, Union, Iterable, Tuple, List, IO
+from typing import Dict, Optional, Union, Iterable, Tuple, List, IO, Pattern
 from dataclasses import dataclass
 import lxml.etree as ET
 
@@ -27,8 +27,8 @@ SegmontoLines = frozenset(["CustomLine",
                            "InterlinearLine",
                            "MusicLine"])
 
-ZoneRegex = re.compile(f"({'|'.join(SegmontoZones)})" + r"(:\w+)?(#\w+)?")
-LineRegex = re.compile(f"({'|'.join(SegmontoLines)})" + r"(:\w+)?(#\w+)?")
+SegmontoZoneRegex: Pattern = re.compile(f"({'|'.join(SegmontoZones)})" + r"(:\w+)?(#\w+)?")
+SegmontoLineRegex: Pattern = re.compile(f"({'|'.join(SegmontoLines)})" + r"(:\w+)?(#\w+)?")
 
 
 @dataclass
@@ -52,20 +52,22 @@ class XmlParser:
     def test(
             self,
             check_empty: bool = False,
-            test_segmonto: bool = False
+            check_typing: bool = False,
+            typing_check_zones: Optional[Pattern] = None,
+            typing_check_lines: Optional[Pattern] = None
     ) -> Tuple[List[Element], List[Element], List[Element]]:
         zones_error = []
         line_error = []
         empty = []
         for zone in self.get_zones(check_empty=check_empty):
-            if test_segmonto:
-                if (zone.category and not ZoneRegex.match(zone.category)) or not zone.category:
+            if check_typing and typing_check_zones:
+                if (zone.category and not typing_check_zones.match(zone.category)) or not zone.category:
                     zones_error.append(zone)
             if not zone.has_content and check_empty:
                 empty.append(zone)
         for line in self.get_textlines(check_empty=check_empty):
-            if test_segmonto:
-                if (line.category is not None and not LineRegex.match(line.category)) or line.category is None:
+            if check_typing and typing_check_lines:
+                if (line.category is not None and not typing_check_lines.match(line.category)) or line.category is None:
                     line_error.append(line)
             if not line.has_content and check_empty:
                 empty.append(line)
