@@ -304,16 +304,27 @@ def test_single(
                     )
                 )
     if xsd:
-        validator = Validator(Validator.retrieve_xsd(parsed_xml))
-        if validator.validate(parsed_xml):
-            filelog.append(Status("success", task="schema", message="validation passed"))
+        xsd_path = Validator.retrieve_xsd(parsed_xml)
+        if xsd_path:
+            validator = Validator(xsd_path)
+            if validator.validate(parsed_xml):
+                filelog.append(Status("success", task="schema", message="validation passed"))
+            else:
+                filelog.append(
+                    Status(
+                        "failure",
+                        task="schema",
+                        message="validation failed",
+                        errors=parse_alto_logs(validator.xmlschema.error_log, group=group)
+                    )
+                )
         else:
             filelog.append(
                 Status(
                     "failure",
                     task="schema",
-                    message="validation failed",
-                    errors=parse_alto_logs(validator.xmlschema.error_log, group=group)
+                    message="XSD not found",
+                    errors=[]
                 )
             )
 

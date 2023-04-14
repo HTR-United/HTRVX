@@ -315,6 +315,14 @@ class AltoTestCase(TestCase):
 
         self.assertIn("1/2 valid XML files", result.output, "One file does not pass")
 
+    def test_xsd_fail_caught(self):
+        """ Schema should automatically be downloaded """
+        result = self.cmd("--verbose", "--xsd", self.getFile("no_xsd.xml"))
+        self.assertEqual(result.exit_code, 1, "Test fails")
+
+        self.assertIn("0/1 valid XML files", result.output, "One file does not pass")
+
+
     def test_io_working_single(self):
         """ Schema should automatically be downloaded """
         xml = parse(self.getFile("working.xml"))
