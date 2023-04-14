@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"  standalone="yes"?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2018-07-15">
+  <Metadata>
+	<Creator>escriptorium</Creator>
+	<Created>2021-01-21T17:55:08.069173+00:00</Created>
+    <LastChange>2021-01-21T17:55:08.069204+00:00</LastChange>
+  </Metadata>
+  <Page imageFilename="PH 1858-1.jpg" imageWidth="3072" imageHeight="4608">
+    <TextRegion id="eSc_dummyblock_">
+        <Coords points="1451,2104 1459,2027 1620,2019 1678,2046 1770,2046 1789,2031 1820,2046 1858,2027 1893,2046 1900,2112 1854,2131 1689,2131 1674,2115 1455,2127"/>
+      <TextLine id="r3l13" >
+        <Coords points="1451,2104 1459,2027 1620,2019 1678,2046 1770,2046 1789,2031 1820,2046 1858,2027 1893,2046 1900,2112 1854,2131 1689,2131 1674,2115 1455,2127"/>
+        <Baseline points="1452,2106 1477,2106 1502,2106 1527,2106 1552,2108 1577,2108 1602,2108 1627,2109 1652,2110 1677,2111 1702,2112 1727,2112 1752,2114 1777,2114 1802,2114 1827,2114 1852,2114 1877,2114 1902,2112"/>
+        <TextEquiv>
+          <Unicode>Audience</Unicode>
+        </TextEquiv>
+      </TextLine>
+    </TextRegion>
+  </Page>
+</PcGts>

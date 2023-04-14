@@ -16,6 +16,10 @@ Schemas = {
 }
 
 
+class SchemaNotFound(ValueError):
+    """Error raised when a value is not found"""
+
+
 class CacheResolver(etree.Resolver):
     cache = _here
 
@@ -57,6 +61,8 @@ class Validator:
 
     @staticmethod
     def get_schema(xsd_path):
+        if not xsd_path:
+            raise
         if xsd_path.startswith("http://") or xsd_path.startswith("https://"):
             new_xsd_path = f"downloaded_{hashlib.sha256(xsd_path.encode()).hexdigest()}.xsd"
             if os.path.exists(Validator.cache_xsd_path(xsd_path)):
