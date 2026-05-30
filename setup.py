@@ -19,7 +19,7 @@ DESCRIPTION = 'HTRVX, HTR Validation with XSD'
 URL = 'https://github.com/htr-united/htrvx'
 AUTHOR = 'Thibault Clérice & Ariane Pinche'
 REQUIRES_PYTHON = '>=3.12.0'
-VERSION = "0.0.19"
+VERSION = "0.0.20"
 
 # What packages are required for this module to be executed?
 
@@ -27,7 +27,9 @@ with open(os.path.join(here, 'requirements.txt')) as f:
     REQUIRED = f.read().splitlines()
 
 # What packages are optional?
-EXTRAS = {}
+EXTRAS = {
+    'upload': ['twine', 'build'],
+}
     # 'fancy feature': ['django'],
 #}
 
@@ -79,11 +81,14 @@ class UploadCommand(Command):
         except OSError:
             pass
 
-        self.status('Building Source and Wheel (universal) distribution…')
-        os.system('{0} setup.py sdist bdist_wheel --universal'.format(sys.executable))
+        self.status('Installing build tools…')
+        os.system('{0} -m pip install --quiet build twine'.format(sys.executable))
+
+        self.status('Building Source and Wheel distribution…')
+        os.system('{0} -m build'.format(sys.executable))
 
         self.status('Uploading the package to PyPI via Twine…')
-        os.system('twine upload dist/*')
+        os.system('{0} -m twine upload dist/*'.format(sys.executable))
 
         self.status('Pushing git tags…')
         os.system('git tag v{0}'.format(about['__version__']))
