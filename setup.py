@@ -18,7 +18,7 @@ NAME = 'htrvx'
 DESCRIPTION = 'HTRVX, HTR Validation with XSD'
 URL = 'https://github.com/htr-united/htrvx'
 AUTHOR = 'Thibault Clérice & Ariane Pinche'
-REQUIRES_PYTHON = '>=3.6.0'
+REQUIRES_PYTHON = '>=3.12.0'
 VERSION = "0.0.19"
 
 # What packages are required for this module to be executed?
@@ -27,9 +27,7 @@ with open(os.path.join(here, 'requirements.txt')) as f:
     REQUIRED = f.read().splitlines()
 
 # What packages are optional?
-EXTRAS = {
-    ":python_version<'3.8'": ["typing_extensions"]
-}
+EXTRAS = {}
     # 'fancy feature': ['django'],
 #}
 
@@ -120,7 +118,7 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.12',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
         'Topic :: Text Processing :: Linguistic'

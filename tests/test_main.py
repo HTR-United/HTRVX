@@ -2,7 +2,7 @@ import os.path
 from unittest import TestCase
 from click.testing import CliRunner
 from htrvx.cli import cmd
-from htrvx.testing import test_single, test
+from htrvx.testing import test_single as htrvx_test_single, test as htrvx_test
 from lxml.etree import parse
 import re
 
@@ -326,7 +326,7 @@ class AltoTestCase(TestCase):
     def test_io_working_single(self):
         """ Schema should automatically be downloaded """
         xml = parse(self.getFile("working.xml"))
-        log = test_single(
+        log = htrvx_test_single(
             xml, xsd=True, segmonto=True, group=True, check_empty=False,
             format=self.FOLDER
         )
@@ -334,7 +334,7 @@ class AltoTestCase(TestCase):
         self.assertEqual(len(log), 3, "Three tests should have been done")
 
         file = open(self.getFile("working.xml"))
-        log = test_single(file, xsd=True, segmonto=True, group=True, check_empty=False,
+        log = htrvx_test_single(file, xsd=True, segmonto=True, group=True, check_empty=False,
             format=self.FOLDER)
         self.assertEqual(log.status, True, "Test should pass on opened files")
         self.assertEqual(len(log), 3, "Three tests should have been done")
@@ -342,12 +342,12 @@ class AltoTestCase(TestCase):
     def test_io_failing_single(self):
         """ Schema should automatically be downloaded """
         xml = parse(self.getFile("empty_line.xml"))
-        log = test_single(xml, xsd=True, segmonto=True, group=True, check_empty=True, raise_empty=True,
+        log = htrvx_test_single(xml, xsd=True, segmonto=True, group=True, check_empty=True, raise_empty=True,
             format=self.FOLDER)
         self.assertEqual(log.status, False, "Test should pass on XML parsed files")
         self.assertEqual(len(log), 5, "Three tests should have been done")
         file = open(self.getFile("empty_line.xml"))
-        log = test_single(file, xsd=True, segmonto=True, group=True, check_empty=True, raise_empty=True,
+        log = htrvx_test_single(file, xsd=True, segmonto=True, group=True, check_empty=True, raise_empty=True,
             format=self.FOLDER)
         self.assertEqual(log.status, False, "Test should pass on XML parsed files")
         self.assertEqual(len(log), 5, "Three tests should have been done")
@@ -358,7 +358,7 @@ class AltoTestCase(TestCase):
             parse(self.getFile("working.xml")),
             parse(self.getFile("working.xml"))
         ]
-        log, status = test(
+        log, status = htrvx_test(
             xml, segmonto=True, group=True, check_empty=False,
             format=self.FOLDER
         )
@@ -366,7 +366,7 @@ class AltoTestCase(TestCase):
         self.assertEqual(len(log["File 001"]), 2, "Two tests should have been done")
 
         file = [open(self.getFile("working.xml")), open(self.getFile("working.xml"))]
-        log, status = test(
+        log, status = htrvx_test(
             file, segmonto=True, group=True, check_empty=False,
             format=self.FOLDER
         )
@@ -382,7 +382,7 @@ class AltoTestCase(TestCase):
             parse(self.getFile("working.xml")),
             parse(self.getFile("empty_line.xml"))
         ]
-        log, status = test(
+        log, status = htrvx_test(
             xml, segmonto=True, group=True, check_empty=True, raise_empty=True,
             format=self.FOLDER
         )
@@ -393,7 +393,7 @@ class AltoTestCase(TestCase):
         self.assertEqual(log["File 002"].status, False, "Second file fails")
 
         file = [open(self.getFile("working.xml")), open(self.getFile("empty_line.xml"))]
-        log, status = test(
+        log, status = htrvx_test(
             file, segmonto=True, group=True, check_empty=True, raise_empty=True,
             format=self.FOLDER
         )

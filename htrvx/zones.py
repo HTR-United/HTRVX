@@ -230,5 +230,5 @@ class AltoXML(XmlParser):
     def check_image_link(self, filepath: Optional[str] = None) -> Tuple[str, bool]:
         return self._check_image_link(
             filepath,
-            [el.text for el in self.xml.findall("//{*}fileName")]
+            [el.text for el in self.xml.findall(".//{*}fileName")]
         )
